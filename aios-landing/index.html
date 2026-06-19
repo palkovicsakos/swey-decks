@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SWEY AIOS — Your company, run by an AI team</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#050A34; --deep:#092676; --signal:#085CF0; --air:#AFE9FD;
+    --paper:#F4F5FA; --paper-2:#ECEEF6; --bone:#FBFBFD; --line:#D9DCE6; --line-2:#1A2350; --mute:#6F7591;
+    --font:'Inter',system-ui,-apple-system,sans-serif;
+    --maxw:1120px;
+    --shadow-sm:0 1px 2px rgba(5,10,52,.06), 0 2px 8px rgba(5,10,52,.05);
+    --shadow-md:0 4px 12px rgba(5,10,52,.08), 0 12px 32px rgba(5,10,52,.07);
+    --shadow-lg:0 8px 24px rgba(5,10,52,.10), 0 24px 60px rgba(5,10,52,.10);
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:var(--font);
+    color:var(--ink);
+    background:var(--bone);
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+
+  h1,h2,h3,h4{font-weight:800;letter-spacing:-.02em;line-height:1.08}
+  h2{font-size:clamp(28px,4vw,46px)}
+  h3{font-size:clamp(20px,2.4vw,26px);letter-spacing:-.015em}
+  p{color:var(--ink)}
+
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 28px}
+  .kicker{
+    font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--signal);display:inline-flex;align-items:center;gap:10px;
+  }
+  .kicker.on-ink{color:var(--air)}
+  .signal{color:var(--signal)}
+  section{padding:clamp(56px,8vw,104px) 0}
+
+  /* ---------- the // mark (square-ended, two 22deg parallelograms) ---------- */
+  .mark{display:inline-block;width:34px;height:24px;flex:none}
+  .mark svg{display:block;width:100%;height:100%}
+
+  /* ---------- top nav (sticky) ---------- */
+  header{
+    position:sticky;top:0;left:0;right:0;z-index:50;
+    background:var(--bone);
+    border-bottom:1px solid var(--line);
+  }
+  .nav{display:flex;align-items:center;justify-content:space-between;height:68px;gap:16px}
+  @media(max-width:640px){.nav{height:58px}}
+  .brand{display:flex;align-items:center;gap:12px;font-weight:800;letter-spacing:-.02em;font-size:18px}
+  .brand .mark{width:30px;height:21px}
+  .nav-right{display:flex;align-items:center;gap:16px}
+
+  /* language switcher */
+  .lang{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;padding:3px;background:var(--bone);box-shadow:var(--shadow-sm)}
+  .lang button{
+    border:none;background:transparent;cursor:pointer;
+    font-family:var(--font);font-size:13px;font-weight:700;letter-spacing:.02em;color:var(--mute);
+    padding:6px 14px;border-radius:999px;transition:background .16s ease,color .16s ease;
+  }
+  .lang button.on{background:var(--signal);color:#fff}
+  .lang button:not(.on):hover{color:var(--ink)}
+
+  .nav-cta{
+    display:inline-flex;align-items:center;gap:8px;
+    font-weight:700;font-size:14px;letter-spacing:-.01em;text-decoration:none;
+    padding:10px 18px;border-radius:9px;background:var(--signal);color:#fff;
+    box-shadow:0 4px 14px rgba(8,92,240,.30);
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .nav-cta:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(8,92,240,.40)}
+  @media(max-width:640px){.nav-cta{display:none}}
+
+  /* ---------- buttons ---------- */
+  .btn{
+    display:inline-flex;align-items:center;gap:9px;
+    font-weight:700;font-size:15px;letter-spacing:-.01em;
+    padding:15px 24px;border-radius:10px;text-decoration:none;cursor:pointer;border:1px solid transparent;
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .btn-primary{background:var(--signal);color:#fff;box-shadow:0 6px 18px rgba(8,92,240,.34)}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 26px rgba(8,92,240,.42)}
+  .btn-ghost{background:transparent;color:var(--paper);border-color:var(--line-2)}
+  .btn-ghost:hover{border-color:var(--air);color:var(--air)}
+  .btn-ghost-ink{background:transparent;color:var(--ink);border-color:var(--line)}
+  .btn-ghost-ink:hover{border-color:var(--signal);color:var(--signal)}
+
+  /* ---------- HERO ---------- */
+  .hero{
+    background:var(--ink);color:var(--paper);
+    position:relative;overflow:hidden;
+    padding:clamp(72px,11vw,136px) 0 clamp(64px,9vw,112px);
+  }
+  .hero-slash{position:absolute;top:-12%;right:-6%;width:62%;height:130%;opacity:.13;pointer-events:none}
+  .hero-slash svg{width:100%;height:100%;display:block}
+  .hero-inner{position:relative;z-index:2;max-width:880px}
+  .hero h1{
+    font-size:clamp(38px,6.4vw,78px);font-weight:900;letter-spacing:-.03em;line-height:.99;
+    margin:24px 0 0;
+  }
+  .hero h1 .signal{color:var(--air)}
+  .hero-sub{
+    font-size:clamp(17px,2.1vw,22px);font-weight:500;color:#C9D0E8;
+    margin-top:26px;max-width:640px;line-height:1.5;
+  }
+  .hero-sub strong{color:var(--paper);font-weight:700}
+  .hero-cta{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-top:40px}
+  .hero-foot{margin-top:26px;font-size:13.5px;font-weight:600;color:#8A93BC;letter-spacing:-.01em}
+
+  /* ---------- section heading block ---------- */
+  .shead{max-width:720px;margin-bottom:clamp(40px,5vw,56px)}
+  .shead.center{margin-left:auto;margin-right:auto;text-align:center}
+  .shead h2{margin-top:18px}
+  .shead p{font-size:clamp(16px,1.9vw,19px);color:var(--mute);margin-top:18px;font-weight:500;line-height:1.55}
+
+  /* ---------- THE PROBLEM ---------- */
+  .problem{background:var(--bone)}
+  .prob-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:20px;align-items:stretch}
+  .prob-lead{
+    grid-column:span 5;background:var(--ink);color:var(--paper);border-radius:18px;
+    padding:36px 34px;display:flex;flex-direction:column;justify-content:center;border:1px solid var(--line-2);
+  }
+  .prob-lead .big{font-size:clamp(26px,3.2vw,38px);font-weight:900;letter-spacing:-.025em;line-height:1.08}
+  .prob-lead .big .signal{color:var(--air)}
+  .prob-lead p{color:#C2CAE6;font-size:15.5px;margin-top:18px;font-weight:500;line-height:1.55}
+  .prob-list{grid-column:span 7;display:flex;flex-direction:column;gap:14px}
+  .pain{
+    background:var(--bone);border:1px solid var(--line);border-radius:14px;padding:20px 24px;
+    box-shadow:var(--shadow-sm);display:flex;gap:16px;align-items:flex-start;
+  }
+  .pain .x{flex:none;width:24px;height:24px;border-radius:8px;background:var(--paper-2);display:grid;place-items:center;margin-top:1px}
+  .pain .x svg{width:13px;height:13px;stroke:var(--deep)}
+  .pain .pt{font-size:15.5px;font-weight:600;color:var(--ink);line-height:1.5}
+  .pain .pt b{font-weight:800}
+  @media(max-width:860px){
+    .prob-lead{grid-column:span 12}
+    .prob-list{grid-column:span 12}
+  }
+
+  /* ---------- THE SOLUTION / TEAM ---------- */
+  .team-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:20px}
+  .agent{
+    background:var(--bone);border:1px solid var(--line);border-radius:16px;
+    padding:30px 28px;box-shadow:var(--shadow-sm);
+    transition:transform .18s ease, box-shadow .18s ease;
+    display:flex;flex-direction:column;
+  }
+  .agent:hover{transform:translateY(-4px);box-shadow:var(--shadow-md)}
+  .agent.lead{grid-column:span 6;background:var(--ink);color:var(--paper);border-color:var(--line-2)}
+  .agent.bg{grid-column:span 3}
+  .agent.spec{grid-column:span 12;background:var(--paper);box-shadow:none}
+  @media(max-width:900px){
+    .agent.lead{grid-column:span 12}
+    .agent.bg{grid-column:span 6}
+  }
+  @media(max-width:560px){.agent.bg{grid-column:span 12}}
+
+  .agent .role{
+    font-size:11.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--signal);
+    display:flex;align-items:center;gap:8px;
+  }
+  .agent.lead .role{color:var(--air)}
+  .agent .name{font-size:clamp(24px,3vw,32px);font-weight:900;letter-spacing:-.025em;margin-top:14px}
+  .agent .tag{font-size:14.5px;font-weight:700;color:var(--ink);margin-top:6px}
+  .agent.lead .tag{color:var(--paper)}
+  .agent .desc{font-size:14.5px;color:var(--mute);margin-top:14px;line-height:1.55;font-weight:500}
+  .agent.lead .desc{color:#C2CAE6}
+  .badge{
+    display:inline-flex;align-items:center;gap:7px;align-self:flex-start;
+    font-size:12px;font-weight:700;letter-spacing:-.01em;
+    padding:6px 12px;border-radius:999px;margin-top:20px;
+    background:var(--paper-2);color:var(--deep);
+  }
+  .agent.lead .badge{background:var(--line-2);color:var(--air)}
+  .agent.spec .badge{background:#fff;border:1px solid var(--line)}
+
+  .spec-inner{display:flex;flex-wrap:wrap;align-items:center;gap:24px;justify-content:space-between}
+  .spec-tags{display:flex;flex-wrap:wrap;gap:10px;margin-top:4px}
+  .chip{
+    font-size:13px;font-weight:600;color:var(--ink);
+    padding:8px 14px;border-radius:999px;background:#fff;border:1px solid var(--line);
+  }
+
+  /* ---------- THE LOOP ---------- */
+  .loop{background:var(--paper)}
+  .loop-flow{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;position:relative}
+  @media(max-width:880px){.loop-flow{grid-template-columns:1fr 1fr}}
+  @media(max-width:520px){.loop-flow{grid-template-columns:1fr}}
+  .step{
+    background:var(--bone);border:1px solid var(--line);border-radius:16px;padding:26px 24px;
+    box-shadow:var(--shadow-sm);position:relative;
+  }
+  .step .num{
+    font-size:13px;font-weight:800;letter-spacing:.04em;color:var(--signal);
+    display:flex;align-items:center;gap:9px;
+  }
+  .step .num::before{content:"";width:22px;height:2px;background:var(--signal);display:block}
+  .step.key{background:var(--ink);border-color:var(--line-2);color:var(--paper)}
+  .step.key .num{color:var(--air)}
+  .step.key .num::before{background:var(--air)}
+  .step h4{font-size:18px;font-weight:800;letter-spacing:-.015em;margin-top:16px}
+  .step.key h4{color:var(--paper)}
+  .step p{font-size:14px;color:var(--mute);margin-top:11px;line-height:1.55;font-weight:500}
+  .step.key p{color:#C2CAE6}
+  .step .horizons{display:flex;gap:6px;margin-top:16px;flex-wrap:wrap}
+  .hz{font-size:11px;font-weight:700;letter-spacing:.02em;padding:5px 10px;border-radius:999px;background:var(--line-2);color:var(--air)}
+
+  .loop-note{
+    margin-top:36px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+    background:var(--bone);border:1px solid var(--line);border-radius:14px;padding:22px 26px;box-shadow:var(--shadow-sm);
+  }
+  .loop-note .big{font-size:clamp(18px,2.2vw,22px);font-weight:800;letter-spacing:-.02em}
+  .loop-note .big .signal{color:var(--signal)}
+  .loop-note .small{font-size:14.5px;color:var(--mute);font-weight:500}
+
+  /* ---------- SURFACES ---------- */
+  .surf-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+  @media(max-width:760px){.surf-grid{grid-template-columns:1fr}}
+  .surface{
+    border:1px solid var(--line);border-radius:18px;overflow:hidden;background:var(--bone);
+    box-shadow:var(--shadow-sm);transition:transform .18s ease, box-shadow .18s ease;
+  }
+  .surface:hover{transform:translateY(-4px);box-shadow:var(--shadow-md)}
+  .surface-top{padding:26px 28px 0}
+  .surface .stitle{font-size:19px;font-weight:800;letter-spacing:-.02em;display:flex;align-items:center;gap:10px}
+  .surface .sdesc{font-size:14.5px;color:var(--mute);margin-top:10px;font-weight:500;line-height:1.55;padding-bottom:22px}
+  .scope-tag{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--signal)}
+  .scope-tag.private{color:var(--mute)}
+
+  /* mini visualizations inside surfaces */
+  .viz{border-top:1px solid var(--line);padding:22px 28px;background:var(--paper)}
+  .mini-board{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .col{background:var(--bone);border:1px solid var(--line);border-radius:10px;padding:10px}
+  .col .ch{font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);margin-bottom:9px;display:flex;justify-content:space-between}
+  .col .ch span{color:var(--signal)}
+  .card{background:#fff;border:1px solid var(--line);border-radius:8px;padding:9px 10px;margin-bottom:7px;font-size:12px;font-weight:600;line-height:1.3}
+  .card:last-child{margin-bottom:0}
+  .card .as{font-size:10px;font-weight:700;color:var(--mute);margin-top:6px;display:flex;align-items:center;gap:5px}
+  .pin{width:6px;height:6px;border-radius:999px;background:var(--signal);display:inline-block}
+  .pin.h{background:var(--deep)}
+  .org{display:flex;flex-direction:column;align-items:center;gap:0}
+  .org-node{
+    background:var(--ink);color:var(--paper);border-radius:9px;padding:8px 16px;
+    font-size:12.5px;font-weight:700;letter-spacing:-.01em;display:inline-flex;align-items:center;gap:7px;
+  }
+  .org-node.live::after{content:"live";font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--air);background:var(--line-2);padding:2px 6px;border-radius:999px}
+  .org-line{width:2px;height:16px;background:var(--line)}
+  .org-row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+  .org-leaf{background:#fff;border:1px solid var(--line);border-radius:8px;padding:7px 13px;font-size:11.5px;font-weight:700;color:var(--ink)}
+  .org-bar{width:60%;height:2px;background:var(--line);margin:0 auto}
+  .tower{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .metric{background:var(--bone);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+  .metric .mn{font-size:20px;font-weight:900;letter-spacing:-.03em;line-height:1}
+  .metric .mn .u{color:var(--signal)}
+  .metric .ml{font-size:10.5px;font-weight:600;color:var(--mute);margin-top:6px;letter-spacing:-.01em}
+  .bars{display:flex;align-items:flex-end;gap:5px;height:42px;margin-top:6px}
+  .bars span{flex:1;background:var(--paper-2);border-radius:3px 3px 0 0}
+  .bars span.on{background:var(--signal)}
+  .pdash{display:flex;flex-direction:column;gap:9px}
+  .prow{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--bone);border:1px solid var(--line);border-radius:9px;padding:10px 13px}
+  .prow .pl{font-size:12.5px;font-weight:600;color:var(--ink)}
+  .track{flex:1;max-width:120px;height:7px;border-radius:999px;background:var(--paper-2);overflow:hidden}
+  .track i{display:block;height:100%;background:var(--signal);border-radius:999px}
+  .prow .pv{font-size:12px;font-weight:800;letter-spacing:-.02em;min-width:42px;text-align:right}
+
+  .spine{
+    margin-top:36px;display:flex;align-items:center;gap:0;flex-wrap:wrap;justify-content:center;
+    background:var(--ink);border-radius:16px;padding:26px;color:var(--paper);
+  }
+  .spine .lab{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--air);margin-right:8px}
+  .spine .node{font-size:clamp(16px,2.2vw,22px);font-weight:900;letter-spacing:-.02em}
+  .spine .arrow{margin:0 16px;color:var(--signal);font-weight:900;font-size:20px}
+  @media(max-width:560px){.spine{flex-direction:column;gap:6px}.spine .arrow{transform:rotate(90deg);margin:4px 0}}
+
+  /* ---------- OUTCOME / WHY ---------- */
+  .why{background:var(--ink);color:var(--paper)}
+  .why .shead h2{color:var(--paper)}
+  .why .shead p{color:#AEB7DA}
+  .why .kicker{color:var(--air)}
+  .why-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  @media(max-width:820px){.why-grid{grid-template-columns:1fr}}
+  .wcard{background:#0A1147;border:1px solid var(--line-2);border-radius:16px;padding:30px 28px}
+  .wcard .wi{width:40px;height:40px;border-radius:11px;background:var(--line-2);display:grid;place-items:center;margin-bottom:18px}
+  .wcard .wi svg{width:20px;height:20px;stroke:var(--air)}
+  .wcard h3{font-size:19px;font-weight:800;letter-spacing:-.02em;color:var(--paper)}
+  .wcard p{font-size:14.5px;color:#AEB7DA;margin-top:12px;font-weight:500;line-height:1.55}
+  .why-line{
+    margin-top:36px;background:#0A1147;border:1px solid var(--line-2);border-radius:16px;
+    padding:30px 32px;display:flex;gap:18px;align-items:center;flex-wrap:wrap;
+  }
+  .why-line .mark{width:34px;height:24px;flex:none}
+  .why-line .big{font-size:clamp(18px,2.4vw,24px);font-weight:800;letter-spacing:-.02em;color:var(--paper)}
+  .why-line .big .signal{color:var(--air)}
+
+  /* ---------- CLOSE / CTA FOOTER ---------- */
+  .close{text-align:center;background:var(--bone)}
+  .close .mark{width:48px;height:34px;margin:0 auto 24px}
+  .close h2{font-size:clamp(30px,5vw,56px);font-weight:900;letter-spacing:-.03em;line-height:1.04;max-width:880px;margin:0 auto}
+  .close p{font-size:clamp(17px,2.2vw,21px);color:var(--mute);font-weight:500;max-width:580px;margin:26px auto 0;line-height:1.5}
+  .close .cta-row{margin-top:40px;display:inline-flex;flex-direction:column;align-items:center;gap:16px}
+  .close .note{font-size:13px;font-weight:600;color:var(--mute);letter-spacing:-.01em}
+
+  footer{border-top:1px solid var(--line);padding:34px 0;background:var(--bone)}
+  .foot{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;font-size:13px;font-weight:600;color:var(--mute)}
+  .foot .brand{font-size:15px}
+
+  /* language visibility */
+  [data-lang]{display:none}
+  html[lang="en"] [data-lang="en"]{display:revert}
+  html[lang="hu"] [data-lang="hu"]{display:revert}
+  /* inline variants keep their display type */
+  span[data-lang]{display:none}
+  html[lang="en"] span[data-lang="en"]{display:inline}
+  html[lang="hu"] span[data-lang="hu"]{display:inline}
+</style>
+</head>
+<body>
+
+<!-- ===== reusable square // mark ===== -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="swey-mark" viewBox="0 0 80 56">
+    <polygon points="6,50 24,6 36,6 18,50"/>
+    <polygon points="36,50 54,6 66,6 48,50"/>
+  </symbol>
+</svg>
+
+<header>
+  <div class="wrap nav">
+    <div class="brand">
+      <span class="mark"><svg aria-hidden="true"><use href="#swey-mark" fill="var(--signal)"/></svg></span>
+      SWEY <span style="color:var(--mute);font-weight:700">AIOS</span>
+    </div>
+    <div class="nav-right">
+      <div class="lang" role="group" aria-label="Language">
+        <button id="lang-en" type="button" class="on" aria-pressed="true">EN</button>
+        <button id="lang-hu" type="button" aria-pressed="false">HU</button>
+      </div>
+      <a href="#book" class="nav-cta">
+        <span data-lang="en">Book a call</span>
+        <span data-lang="hu">Foglalok egy hívást</span>
+      </a>
+    </div>
+  </div>
+</header>
+
+<!-- ===================== HERO ===================== -->
+<section class="hero">
+  <div class="hero-slash" aria-hidden="true">
+    <svg viewBox="0 0 80 56" preserveAspectRatio="xMidYMid slice">
+      <polygon points="6,50 24,6 36,6 18,50" fill="#1A2350"/>
+      <polygon points="36,50 54,6 66,6 48,50" fill="#1A2350"/>
+    </svg>
+  </div>
+  <div class="wrap">
+    <div class="hero-inner">
+      <span class="kicker on-ink"><span class="mark" style="width:22px;height:16px"><svg aria-hidden="true"><use href="#swey-mark" fill="var(--air)"/></svg></span>
+        <span data-lang="en">The AI-native operating system</span>
+        <span data-lang="hu">Az AI-alapú működési rendszer</span>
+      </span>
+
+      <h1 data-lang="en">Your company,<br>run by an <span class="signal">AI team</span></h1>
+      <h1 data-lang="hu">A céged,<br>amit egy <span class="signal">AI-csapat</span> visz</h1>
+
+      <p class="hero-sub" data-lang="en">SWEY AIOS puts a <strong>team of AI agents in charge of the day-to-day</strong> — they triage the work, dispatch it, and never drop a ball. You stop being the operator. <strong>You run the vision. The AI runs operations.</strong></p>
+      <p class="hero-sub" data-lang="hu">A SWEY AIOS egy <strong>AI-ügynökökből álló csapatra bízza a napi működést</strong> — szétválogatják a munkát, kiosztják, és egyetlen szál sem hullik ki a kezükből. Te kiszállsz az operatív darálóból. <strong>Tiéd a jövőkép. Az AI viszi a működést.</strong></p>
+
+      <div class="hero-cta">
+        <a href="#book" class="btn btn-primary">
+          <span data-lang="en">Book a call</span>
+          <span data-lang="hu">Foglalok egy hívást</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+        <a href="#solution" class="btn btn-ghost">
+          <span data-lang="en">See how it works</span>
+          <span data-lang="hu">Megnézem, hogyan működik</span>
+        </a>
+      </div>
+
+      <p class="hero-foot">
+        <span data-lang="en">An AI-native operating system, built and run by SWEY Innovations.</span>
+        <span data-lang="hu">AI-alapú működési rendszer, a SWEY Innovations építi és üzemelteti.</span>
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== THE PROBLEM ===================== -->
+<section id="problem" class="problem">
+  <div class="wrap">
+    <div class="shead">
+      <span class="kicker">
+        <span data-lang="en">The real bottleneck</span>
+        <span data-lang="hu">Az igazi szűk keresztmetszet</span>
+      </span>
+      <h2 data-lang="en">The bottleneck is <span class="signal">you</span>.</h2>
+      <h2 data-lang="hu">A szűk keresztmetszet <span class="signal">te vagy</span>.</h2>
+      <p data-lang="en">Every task, every decision, every follow-up routes through the founder. You can't scale the company — because you ARE the operations. The day the work outgrows your calendar, the company stops growing with it.</p>
+      <p data-lang="hu">Minden feladat, minden döntés, minden utánkövetés rajtad fut keresztül. Nem tudod skálázni a céget — mert te magad VAGY a működés. Amelyik nap a munka kinövi a naptáradat, a cég is megáll a növekedésben.</p>
+    </div>
+
+    <div class="prob-grid">
+      <div class="prob-lead">
+        <div class="big" data-lang="en">You hire yourself out of <span class="signal">every</span> gap.</div>
+        <div class="big" data-lang="hu">Te tömöd be <span class="signal">minden</span> rést.</div>
+        <p data-lang="en">Operator, project manager, dispatcher, quality check, the person who remembers the thing nobody wrote down. It all sits on you — so the business grows exactly as fast as one founder's day allows. No faster.</p>
+        <p data-lang="hu">Te vagy az operatív ember, a projektmenedzser, a diszpécser, a minőségellenőr, és te jegyzed meg azt is, amit senki nem írt le. Minden a te válladon van — így a cég pontosan annyit nő, amennyit egy alapító napja megenged. Egy hajszállal sem többet.</p>
+      </div>
+
+      <div class="prob-list">
+        <div class="pain">
+          <span class="x"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.6" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></span>
+          <span class="pt"><b data-lang="en">Work waits for you.</b><b data-lang="hu">A munka rád vár.</b>
+            <span data-lang="en"> Nothing moves until you've seen it, sorted it, and told someone what to do with it.</span>
+            <span data-lang="hu"> Semmi nem mozdul, amíg te meg nem nézted, szét nem válogattad, és meg nem mondtad, mi legyen vele.</span>
+          </span>
+        </div>
+        <div class="pain">
+          <span class="x"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.6" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></span>
+          <span class="pt"><b data-lang="en">Things slip through.</b><b data-lang="hu">Dolgok kicsúsznak.</b>
+            <span data-lang="en"> A follow-up that didn't go out, a lead that went cold, the ball nobody saw drop.</span>
+            <span data-lang="hu"> Egy utánkövetés, ami elmaradt, egy érdeklődő, aki kihűlt, egy szál, amiről senki nem vette észre, hogy kiesett.</span>
+          </span>
+        </div>
+        <div class="pain">
+          <span class="x"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.6" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></span>
+          <span class="pt"><b data-lang="en">Growth means more headcount.</b><b data-lang="hu">A növekedés újabb fejeket jelent.</b>
+            <span data-lang="en"> The only lever you know is hiring — more people to manage, which means more of your day spent managing them.</span>
+            <span data-lang="hu"> Az egyetlen kar, amit ismersz, az új ember — akit megint menedzselni kell, vagyis a napod még nagyobb része megy el a menedzseléssel.</span>
+          </span>
+        </div>
+        <div class="pain">
+          <span class="x"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.6" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></span>
+          <span class="pt"><b data-lang="en">You're never on the vision.</b><b data-lang="hu">Sosem a jövőképen vagy.</b>
+            <span data-lang="en"> The work that actually grows the company keeps losing to the work that just keeps the lights on.</span>
+            <span data-lang="hu"> A munka, amitől tényleg nő a cég, mindig alulmarad azzal szemben, ami csak életben tartja a napi üzemet.</span>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== THE SOLUTION / TEAM ===================== -->
+<section id="solution">
+  <div class="wrap">
+    <div class="shead">
+      <span class="kicker">
+        <span data-lang="en">The solution · your agent team</span>
+        <span data-lang="hu">A megoldás · a saját AI-csapatod</span>
+      </span>
+      <h2 data-lang="en">Put an <span class="signal">agent team</span> in charge of operations</h2>
+      <h2 data-lang="hu">Bízd a működést egy <span class="signal">AI-csapatra</span></h2>
+      <p data-lang="en">Not one chatbot to prompt — a small org that runs your company's day-to-day. A right hand you talk to, two operators that never sleep, and specialists summoned for the job. They take the work off you and they don't drop the ball.</p>
+      <p data-lang="hu">Nem egy chatbot, amit nógatni kell — egy kis csapat, amely a céged napi működését viszi. Egy jobbkéz, akivel beszélsz, két háttéroperátor, akik sosem alszanak, és specialisták, akiket a feladatra hívsz be. Leveszik rólad a munkát, és nem ejtik el a szálat.</p>
+    </div>
+
+    <div class="team-grid">
+      <!-- Jarvis -->
+      <div class="agent lead">
+        <span class="role"><span class="mark" style="width:18px;height:13px"><svg aria-hidden="true"><use href="#swey-mark" fill="var(--air)"/></svg></span>
+          <span data-lang="en">Foreground · your right hand</span>
+          <span data-lang="hu">Előtérben · a jobbkezed</span>
+        </span>
+        <div class="name">Jarvis</div>
+        <div class="tag" data-lang="en">The one you actually talk to</div>
+        <div class="tag" data-lang="hu">Akivel ténylegesen beszélsz</div>
+        <p class="desc" data-lang="en">Your single point of contact to the whole system. You say what you need; Jarvis handles the reversible calls on its own, brings the real decisions to you in one clean batch, and keeps you out of the weeds. A chief of staff, not a search box.</p>
+        <p class="desc" data-lang="hu">Egyetlen kapcsolódási pontod az egész rendszerhez. Megmondod, mire van szükséged; a visszafordítható döntéseket Jarvis magától elintézi, az igazi döntéseket meg egyben, letisztázva hozza eléd — téged nem ránt bele a részletekbe. Egy stábfőnök, nem egy keresőmező.</p>
+        <span class="badge">
+          <span data-lang="en">Talks to you · routes everything</span>
+          <span data-lang="hu">Veled beszél · mindent irányít</span>
+        </span>
+      </div>
+
+      <!-- Darius -->
+      <div class="agent bg">
+        <span class="role">
+          <span data-lang="en">Background · operator</span>
+          <span data-lang="hu">Háttérben · operátor</span>
+        </span>
+        <div class="name">Darius</div>
+        <div class="tag" data-lang="en">Runs the day-to-day</div>
+        <div class="tag" data-lang="hu">Viszi a napi működést</div>
+        <p class="desc" data-lang="en">The operations engine. Triages every incoming item, ranks it by what matters now, and dispatches each one to whoever should own it — so nothing waits on your inbox.</p>
+        <p class="desc" data-lang="hu">A működés motorja. Szétválogat minden beérkező feladatot, rangsorolja aszerint, mi számít most, és kiosztja annak, akinek a kezébe való — így semmi nem a te postaládádon vár.</p>
+        <span class="badge">
+          <span data-lang="en">Always running</span>
+          <span data-lang="hu">Mindig fut</span>
+        </span>
+      </div>
+
+      <!-- Atlas -->
+      <div class="agent bg">
+        <span class="role">
+          <span data-lang="en">Background · builder</span>
+          <span data-lang="hu">Háttérben · építő</span>
+        </span>
+        <div class="name">Atlas</div>
+        <div class="tag" data-lang="en">Builds the system itself</div>
+        <div class="tag" data-lang="hu">Magát a rendszert építi</div>
+        <p class="desc" data-lang="en">Spots the work you keep repeating and turns it into the system's own skills and automations — so the machine gets sharper every week without you asking.</p>
+        <p class="desc" data-lang="hu">Kiszúrja a munkát, amit újra meg újra megcsinálsz, és a rendszer saját képességévé, automatizmusává alakítja — így a gép hétről hétre élesebb lesz, anélkül hogy kérned kellene.</p>
+        <span class="badge">
+          <span data-lang="en">Always building</span>
+          <span data-lang="hu">Mindig épít</span>
+        </span>
+      </div>
+
+      <!-- Specialists -->
+      <div class="agent spec">
+        <div class="spec-inner">
+          <div style="max-width:440px">
+            <span class="role">
+              <span data-lang="en">On demand · the hands</span>
+              <span data-lang="hu">Igény szerint · a kezek</span>
+            </span>
+            <div class="name" style="font-size:26px;margin-top:10px" data-lang="en">Specialists</div>
+            <div class="name" style="font-size:26px;margin-top:10px" data-lang="hu">Specialisták</div>
+            <p class="desc" style="margin-top:10px" data-lang="en">Summoned for the job, then released — research, copy, design, data, outreach. The right depth exactly when a task needs it, with no standing overhead to manage.</p>
+            <p class="desc" style="margin-top:10px" data-lang="hu">A feladatra behívva, utána elengedve — kutatás, szövegírás, dizájn, adat, megkeresés. Pontosan annyi mélység, amennyit a feladat megkíván, állandó rezsi nélkül, amit menedzselni kellene.</p>
+          </div>
+          <div class="spec-tags">
+            <span class="chip"><span data-lang="en">Research</span><span data-lang="hu">Kutatás</span></span>
+            <span class="chip"><span data-lang="en">Copy</span><span data-lang="hu">Szöveg</span></span>
+            <span class="chip"><span data-lang="en">Design</span><span data-lang="hu">Dizájn</span></span>
+            <span class="chip"><span data-lang="en">Data</span><span data-lang="hu">Adat</span></span>
+            <span class="chip"><span data-lang="en">Outreach</span><span data-lang="hu">Megkeresés</span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== THE LOOP ===================== -->
+<section id="loop" class="loop">
+  <div class="wrap">
+    <div class="shead">
+      <span class="kicker">
+        <span data-lang="en">How it works · the lean loop</span>
+        <span data-lang="hu">Hogyan működik · a lean folyamat</span>
+      </span>
+      <h2 data-lang="en">Capture in. Cleared plate out.</h2>
+      <h2 data-lang="hu">Bedobod. Letisztult a tányér.</h2>
+      <p data-lang="en">The whole point is that work clears itself off your plate. You drop something in, the system sorts and runs it, and the only thing that comes back to you is one line. No standups, no ticket-shuffling, no leaving the work you're actually good at.</p>
+      <p data-lang="hu">A lényeg, hogy a munka magától lekerül a tányérodról. Bedobsz valamit, a rendszer szétválogatja és lefuttatja, és egyetlen sor jön vissza hozzád. Nincs napi kör, nincs feladatpakolgatás, nem kell otthagynod azt, amihez tényleg értesz.</p>
+    </div>
+
+    <div class="loop-flow">
+      <div class="step">
+        <div class="num"><span data-lang="en">Step 01</span><span data-lang="hu">01. lépés</span></div>
+        <h4 data-lang="en">Capture</h4>
+        <h4 data-lang="hu">Bedobás</h4>
+        <p data-lang="en">A note, a voice memo, a message, an idea mid-call. Anything lands in one inbox — no formatting, no deciding where it goes.</p>
+        <p data-lang="hu">Egy jegyzet, egy hangüzenet, egy beszélgetés közben felvillanó ötlet. Bármi egyetlen helyre érkezik — formázás nélkül, anélkül hogy el kellene döntened, hova kerüljön.</p>
+      </div>
+
+      <div class="step key">
+        <div class="num"><span data-lang="en">Step 02 · Darius</span><span data-lang="hu">02. lépés · Darius</span></div>
+        <h4 data-lang="en">Triage &amp; prioritize</h4>
+        <h4 data-lang="hu">Szétválogat és rangsorol</h4>
+        <p data-lang="en">Darius classifies every item and ranks it across long, mid and short horizons — so what matters now rises, and the rest waits without getting lost.</p>
+        <p data-lang="hu">Darius minden feladatot besorol, és hosszú, közép és rövid távon rangsorolja — így ami most számít, az felül van, a többi meg vár, anélkül hogy elveszne.</p>
+        <div class="horizons">
+          <span class="hz"><span data-lang="en">Long</span><span data-lang="hu">Hosszú</span></span>
+          <span class="hz"><span data-lang="en">Mid</span><span data-lang="hu">Közép</span></span>
+          <span class="hz"><span data-lang="en">Short</span><span data-lang="hu">Rövid</span></span>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="num"><span data-lang="en">Step 03</span><span data-lang="hu">03. lépés</span></div>
+        <h4 data-lang="en">Dispatch &amp; do</h4>
+        <h4 data-lang="hu">Kiosztás és végrehajtás</h4>
+        <p data-lang="en">Each item goes to whoever should own it — a teammate or a specialist agent — and the work actually happens, then lands in review for a quick yes.</p>
+        <p data-lang="hu">Minden feladat ahhoz kerül, akinek a kezébe való — egy csapattaghoz vagy egy specialista ügynökhöz —, a munka tényleg megtörténik, aztán visszajön ellenőrzésre, egy gyors igenért.</p>
+      </div>
+
+      <div class="step">
+        <div class="num"><span data-lang="en">Step 04</span><span data-lang="hu">04. lépés</span></div>
+        <h4 data-lang="en">One digest back</h4>
+        <h4 data-lang="hu">Egyetlen összefoglaló vissza</h4>
+        <p data-lang="en">What got done, what needs you, what's next — a single digest line. You never have to go digging for status.</p>
+        <p data-lang="hu">Mi készült el, mihez kellesz te, mi a következő — egyetlen sorban. Soha nem kell státusz után kutatnod.</p>
+      </div>
+    </div>
+
+    <div class="loop-note">
+      <span class="mark" style="width:30px;height:21px;flex:none"><svg aria-hidden="true"><use href="#swey-mark" fill="var(--signal)"/></svg></span>
+      <div>
+        <div class="big" data-lang="en">You never leave <span class="signal">the vision</span>.</div>
+        <div class="big" data-lang="hu">Te sosem hagyod ott <span class="signal">a jövőképet</span>.</div>
+        <div class="small" data-lang="en">The loop runs whether you're on a call, on a plane, or asleep. The founder stays on what grows the business.</div>
+        <div class="small" data-lang="hu">A folyamat fut, miközben hívásban vagy, repülőn ülsz, vagy alszol. Az alapító azzal foglalkozik, amitől nő a cég.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== SURFACES ===================== -->
+<section id="surfaces">
+  <div class="wrap">
+    <div class="shead">
+      <span class="kicker">
+        <span data-lang="en">One system · scoped surfaces</span>
+        <span data-lang="hu">Egy rendszer · célzott nézetek</span>
+      </span>
+      <h2 data-lang="en">Four windows onto <span class="signal">one machine</span></h2>
+      <h2 data-lang="hu">Négy ablak <span class="signal">egyetlen gépre</span></h2>
+      <p data-lang="en">It's not four apps — it's one system you look at from different angles. Every surface sits on the same spine, so a goal, a project and a task are always the same object, never a copy.</p>
+      <p data-lang="hu">Nem négy alkalmazás — egyetlen rendszer, amit különböző szögekből nézel. Minden nézet ugyanarra a gerincre épül, így egy cél, egy projekt és egy feladat mindig ugyanaz az elem, soha nem másolat.</p>
+    </div>
+
+    <div class="surf-grid">
+      <!-- Operations Board -->
+      <div class="surface">
+        <div class="surface-top">
+          <span class="scope-tag"><span data-lang="en">The work</span><span data-lang="hu">A munka</span></span>
+          <div class="stitle" style="margin-top:8px"><span data-lang="en">Operations Board</span><span data-lang="hu">Működési tábla</span></div>
+          <p class="sdesc" data-lang="en">Every task, who owns it, where it is. Agents push work here and gate it through review.</p>
+          <p class="sdesc" data-lang="hu">Minden feladat, ki a gazdája, hol tart. Az ügynökök ide teszik a munkát, és ellenőrzésen át engedik tovább.</p>
+        </div>
+        <div class="viz">
+          <div class="mini-board">
+            <div class="col">
+              <div class="ch"><span data-lang="en">Triage</span><span data-lang="hu">Bejövő</span> <span>3</span></div>
+              <div class="card"><span data-lang="en">Verify new lead list</span><span data-lang="hu">Új céglista ellenőrzése</span><div class="as"><span class="pin"></span> Darius</div></div>
+              <div class="card"><span data-lang="en">Draft follow-up</span><span data-lang="hu">Utánkövetés megírása</span><div class="as"><span class="pin h"></span> <span data-lang="en">You</span><span data-lang="hu">Te</span></div></div>
+            </div>
+            <div class="col">
+              <div class="ch"><span data-lang="en">Doing</span><span data-lang="hu">Folyamatban</span> <span>2</span></div>
+              <div class="card"><span data-lang="en">Build inbox tracker</span><span data-lang="hu">Postaláda-követő építése</span><div class="as"><span class="pin"></span> Atlas</div></div>
+              <div class="card"><span data-lang="en">Landing page copy</span><span data-lang="hu">Landing oldal szövege</span><div class="as"><span class="pin"></span> <span data-lang="en">Specialist</span><span data-lang="hu">Specialista</span></div></div>
+            </div>
+            <div class="col">
+              <div class="ch"><span data-lang="en">In review</span><span data-lang="hu">Ellenőrzés</span> <span>1</span></div>
+              <div class="card"><span data-lang="en">Quarterly report</span><span data-lang="hu">Negyedéves riport</span><div class="as"><span class="pin h"></span> <span data-lang="en">Teammate</span><span data-lang="hu">Csapattag</span></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cockpit -->
+      <div class="surface">
+        <div class="surface-top">
+          <span class="scope-tag"><span data-lang="en">The org</span><span data-lang="hu">A szervezet</span></span>
+          <div class="stitle" style="margin-top:8px"><span data-lang="en">Cockpit</span><span data-lang="hu">Vezérlőpult</span></div>
+          <p class="sdesc" data-lang="en">The live org chart — who (human or agent) is running what, right now.</p>
+          <p class="sdesc" data-lang="hu">Az élő szervezeti ábra — ki (ember vagy ügynök) mit visz, épp most.</p>
+        </div>
+        <div class="viz">
+          <div class="org">
+            <div class="org-node live">Jarvis · <span data-lang="en">routing</span><span data-lang="hu">irányít</span></div>
+            <div class="org-line"></div>
+            <div class="org-bar"></div>
+            <div style="height:14px"></div>
+            <div class="org-row">
+              <div class="org-node">Atlas</div>
+              <div class="org-node">Darius</div>
+            </div>
+            <div style="height:14px"></div>
+            <div class="org-row">
+              <div class="org-leaf"><span data-lang="en">Teammate</span><span data-lang="hu">Csapattag</span></div>
+              <div class="org-leaf"><span data-lang="en">Research</span><span data-lang="hu">Kutatás</span></div>
+              <div class="org-leaf"><span data-lang="en">Copy</span><span data-lang="hu">Szöveg</span></div>
+              <div class="org-leaf"><span data-lang="en">Data</span><span data-lang="hu">Adat</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Control Tower -->
+      <div class="surface">
+        <div class="surface-top">
+          <span class="scope-tag"><span data-lang="en">Sales &amp; pipeline</span><span data-lang="hu">Értékesítés és pipeline</span></span>
+          <div class="stitle" style="margin-top:8px"><span data-lang="en">Control Tower</span><span data-lang="hu">Irányítótorony</span></div>
+          <p class="sdesc" data-lang="en">The metrics that decide the quarter — pipeline, leads, cash. One glance, no spreadsheet.</p>
+          <p class="sdesc" data-lang="hu">A mutatók, amik eldöntik a negyedévet — pipeline, érdeklődők, bevétel. Egy pillantás, nincs Excel.</p>
+        </div>
+        <div class="viz">
+          <div class="tower">
+            <div class="metric">
+              <div class="mn"><span class="u">·</span></div>
+              <div class="ml"><span data-lang="en">Outreach reps</span><span data-lang="hu">Megkeresések</span></div>
+            </div>
+            <div class="metric">
+              <div class="mn"><span class="u">·</span></div>
+              <div class="ml"><span data-lang="en">Leads in flight</span><span data-lang="hu">Aktív érdeklődők</span></div>
+            </div>
+            <div class="metric">
+              <div class="mn"><span class="u">·</span></div>
+              <div class="ml"><span data-lang="en">Calls booked</span><span data-lang="hu">Foglalt hívások</span></div>
+            </div>
+          </div>
+          <div class="bars" aria-hidden="true">
+            <span style="height:32%"></span><span style="height:48%"></span><span style="height:40%"></span>
+            <span style="height:64%"></span><span style="height:56%"></span><span class="on" style="height:84%"></span>
+            <span class="on" style="height:72%"></span><span class="on" style="height:96%"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Personal Dashboard -->
+      <div class="surface">
+        <div class="surface-top">
+          <span class="scope-tag private"><span data-lang="en">Private · yours only</span><span data-lang="hu">Privát · csak a tiéd</span></span>
+          <div class="stitle" style="margin-top:8px"><span data-lang="en">Personal Dashboard</span><span data-lang="hu">Személyes irányítópult</span></div>
+          <p class="sdesc" data-lang="en">Energy, focus, the day's plan — the founder's private cockpit, separate from the company's.</p>
+          <p class="sdesc" data-lang="hu">Energia, fókusz, a nap terve — az alapító privát pultja, elkülönítve a cégétől.</p>
+        </div>
+        <div class="viz">
+          <div class="pdash">
+            <div class="prow"><span class="pl"><span data-lang="en">Today's focus blocks</span><span data-lang="hu">Mai fókuszblokkok</span></span><span class="track"><i style="width:75%"></i></span><span class="pv">3/4</span></div>
+            <div class="prow"><span class="pl"><span data-lang="en">Recovery</span><span data-lang="hu">Regeneráció</span></span><span class="track"><i style="width:82%"></i></span><span class="pv">82%</span></div>
+            <div class="prow"><span class="pl"><span data-lang="en">Deep-work streak</span><span data-lang="hu">Mélymunka-sorozat</span></span><span class="track"><i style="width:60%"></i></span><span class="pv">6<span data-lang="en">d</span><span data-lang="hu">n</span></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- the spine -->
+    <div class="spine">
+      <span class="lab"><span data-lang="en">One spine</span><span data-lang="hu">Egy gerinc</span></span>
+      <span class="node"><span data-lang="en">Goals</span><span data-lang="hu">Célok</span></span>
+      <span class="arrow">→</span>
+      <span class="node"><span data-lang="en">Projects</span><span data-lang="hu">Projektek</span></span>
+      <span class="arrow">→</span>
+      <span class="node"><span data-lang="en">Tasks</span><span data-lang="hu">Feladatok</span></span>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== OUTCOME / WHY SWEY ===================== -->
+<section id="why" class="why">
+  <div class="wrap">
+    <div class="shead">
+      <span class="kicker">
+        <span data-lang="en">The outcome · why SWEY</span>
+        <span data-lang="hu">Az eredmény · miért a SWEY</span>
+      </span>
+      <h2 data-lang="en">Scale the company,<br>not the headcount</h2>
+      <h2 data-lang="hu">A céget skálázd,<br>ne a létszámot</h2>
+      <p data-lang="en">AIOS gives you a way to grow that doesn't route through more hires and more of your day spent managing them. The company gets more capacity; you get your attention back. Built lean, AI-native, on infrastructure you already trust.</p>
+      <p data-lang="hu">Az AIOS olyan növekedési utat ad, amelyhez nem kell több ember és nem megy el a napod a menedzselésükkel. A cég több kapacitást kap; te visszakapod a figyelmedet. Lean módon felépítve, AI-alapon, olyan rendszerre, amelyben már megbízol.</p>
+    </div>
+
+    <div class="why-grid">
+      <div class="wcard">
+        <div class="wi"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M21 3v6h-6"/></svg></div>
+        <h3 data-lang="en">Grow without adding headcount</h3>
+        <h3 data-lang="hu">Nőj új ember nélkül</h3>
+        <p data-lang="en">More gets done without another salary, another manager, another person on your calendar. The agent team absorbs the operational load that used to mean a new hire.</p>
+        <p data-lang="hu">Több készül el úgy, hogy nem kell újabb fizetés, újabb menedzser, újabb ember a naptáradban. Az AI-csapat felszívja azt az operatív terhet, ami eddig egy új embert jelentett.</p>
+      </div>
+      <div class="wcard">
+        <div class="wi"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
+        <h3 data-lang="en">Your attention, back on you</h3>
+        <h3 data-lang="hu">A figyelmed újra a tiéd</h3>
+        <p data-lang="en">The day-to-day stops landing on your desk. You spend your hours on the vision, the offer, and the customers — the work only the founder can do.</p>
+        <p data-lang="hu">A napi működés nem a te asztalodon köt ki. Az óráidat a jövőképre, az ajánlatra és az ügyfelekre fordítod — arra a munkára, amit csak az alapító tud elvégezni.</p>
+      </div>
+      <div class="wcard">
+        <div class="wi"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/><path d="M9 12l2 2 4-4"/></svg></div>
+        <h3 data-lang="en">AI-native, built lean</h3>
+        <h3 data-lang="hu">AI-alapon, lean módon</h3>
+        <p data-lang="en">SWEY builds and runs this for you on infrastructure you already use — not a big-bang platform rebuild. The system is mapped to grow with you, incrementally, never a rip-and-replace.</p>
+        <p data-lang="hu">A SWEY ezt neked építi és üzemelteti, olyan rendszerre, amit már használsz — nem egy mindent felforgató platformcserére. A rendszer arra van tervezve, hogy veled együtt nőjön, lépésről lépésre, soha nem kidobós-újraépítős módon.</p>
+      </div>
+    </div>
+
+    <div class="why-line">
+      <span class="mark"><svg aria-hidden="true"><use href="#swey-mark" fill="var(--air)"/></svg></span>
+      <div class="big" data-lang="en">A founder shouldn't be the operations department.<br><span class="signal">AIOS takes the day-to-day off your plate.</span></div>
+      <div class="big" data-lang="hu">Egy alapító ne legyen az operatív osztály.<br><span class="signal">Az AIOS leveszi rólad a napi működést.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== CLOSE / CTA FOOTER ===================== -->
+<section id="book" class="close">
+  <div class="wrap">
+    <span class="mark"><svg aria-hidden="true"><use href="#swey-mark" fill="var(--signal)"/></svg></span>
+    <h2 data-lang="en">See it run<br>for <span class="signal">your company</span></h2>
+    <h2 data-lang="hu">Nézd meg, hogy fut<br>a <span class="signal">te cégeden</span></h2>
+    <p data-lang="en">Book a call and we'll walk through how the agent team would run your day-to-day — and whether it fits the way your company actually works.</p>
+    <p data-lang="hu">Foglalj egy hívást, és végigvesszük, hogyan vinné az AI-csapat a napi működésedet — és hogy passzol-e ahhoz, ahogy a céged tényleg működik.</p>
+    <div class="cta-row">
+      <a href="https://swey.hu" class="btn btn-primary" style="font-size:16px;padding:16px 28px">
+        <span data-lang="en">Book a call</span>
+        <span data-lang="hu">Foglalok egy hívást</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </a>
+      <span class="note">
+        <span data-lang="en">SWEY AIOS · the company that runs itself.</span>
+        <span data-lang="hu">SWEY AIOS · a cég, ami magát viszi.</span>
+      </span>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot">
+    <div class="brand">
+      <span class="mark" style="width:26px;height:18px"><svg aria-hidden="true"><use href="#swey-mark" fill="var(--signal)"/></svg></span>
+      SWEY <span style="color:var(--mute);font-weight:700">AIOS</span>
+    </div>
+    <div>
+      <span data-lang="en">An AI-native operating system · SWEY Innovations</span>
+      <span data-lang="hu">AI-alapú működési rendszer · SWEY Innovations</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  (function(){
+    var enBtn = document.getElementById('lang-en');
+    var huBtn = document.getElementById('lang-hu');
+    var htmlEl = document.documentElement;
+
+    function setLang(lang){
+      if(lang !== 'en' && lang !== 'hu') lang = 'en';
+      htmlEl.setAttribute('lang', lang);
+      var isEN = lang === 'en';
+      enBtn.classList.toggle('on', isEN);
+      huBtn.classList.toggle('on', !isEN);
+      enBtn.setAttribute('aria-pressed', isEN ? 'true' : 'false');
+      huBtn.setAttribute('aria-pressed', !isEN ? 'true' : 'false');
+      try { localStorage.setItem('swey-aios-lang', lang); } catch(e){}
+    }
+
+    enBtn.addEventListener('click', function(){ setLang('en'); });
+    huBtn.addEventListener('click', function(){ setLang('hu'); });
+
+    var saved = 'en';
+    try { saved = localStorage.getItem('swey-aios-lang') || 'en'; } catch(e){}
+    setLang(saved);
+  })();
+</script>
+</body>
+</html>
