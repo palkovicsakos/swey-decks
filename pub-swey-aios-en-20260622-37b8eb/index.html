@@ -1,0 +1,1091 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>SWEY AIOS — AI-vezérelt operációs rendszer cégeknek</title>
+<meta name="description" content="SWEY AIOS egy konzultációs és építési engagement, amely a alapítótól függő működést autonóm, AI-vezérelt rendszerré alakítja. Mértékelvű eredmény 6 hét alatt." />
+
+<!-- Inter, only. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   SWEY AIOS — design tokens (from brand manual)
+   One blue. One type family. One motif. Ink-tinted shadows.
+   ============================================================ */
+:root{
+  --swey-ink:#050A34;     /* primary text + dark surfaces */
+  --swey-deep:#092676;    /* secondary depth */
+  --swey-signal:#085CF0;  /* the single blue accent */
+  --swey-air:#AFE9FD;     /* contrast accent on dark */
+  --swey-paper:#F4F5FA;   /* light surface */
+  --swey-bone:#FBFBFD;    /* page bg */
+  --swey-paper-2:#ECEEF6;
+  --swey-line:#D9DCE6;    /* hairline on light */
+  --swey-line-ink:#1A2350;/* hairline on ink */
+  --swey-mute:#6F7591;    /* secondary text on light */
+
+  --bg-page:var(--swey-bone);
+  --bg-surface:var(--swey-paper);
+  --bg-raised:#ffffff;
+  --bg-ink:var(--swey-ink);
+  --bg-deep:var(--swey-deep);
+  --bg-signal:var(--swey-signal);
+
+  --fg-1:var(--swey-ink);
+  --fg-2:var(--swey-mute);
+  --fg-accent:var(--swey-signal);
+  --fg-on-1:var(--swey-paper);
+  --fg-on-2:rgba(255,255,255,.62);
+  --fg-on-accent:var(--swey-air);
+
+  --font:"Inter","Helvetica Neue",Helvetica,Arial,sans-serif;
+
+  --fs-display:clamp(46px,8.2vw,108px);
+  --lh-display:.96;
+  --tr-display:-.038em;
+  --fs-h1:clamp(36px,5vw,64px);
+  --lh-h1:1.02; --tr-h1:-.03em;
+  --fs-h2:clamp(27px,3.4vw,40px);
+  --lh-h2:1.08; --tr-h2:-.022em;
+  --fs-h3:clamp(19px,1.8vw,24px);
+  --lh-h3:1.2; --tr-h3:-.014em;
+  --fs-lead:clamp(17px,1.55vw,21px);
+  --lh-lead:1.5;
+  --fs-body:15.5px; --lh-body:1.55;
+  --fs-small:13.5px;
+  --fs-kicker:12px; --tr-kicker:.16em;
+
+  --r-sm:10px; --r-md:14px; --r-lg:16px; --r-xl:20px; --r-2xl:26px; --r-pill:999px;
+
+  --shadow-card:0 30px 60px -34px rgba(5,10,52,.30), 0 4px 12px -6px rgba(5,10,52,.14);
+  --shadow-card-lg:0 50px 90px -50px rgba(5,10,52,.50), 0 10px 24px -14px rgba(5,10,52,.18);
+  --shadow-ink:0 40px 80px -40px rgba(5,10,52,.55);
+
+  --ease:cubic-bezier(.22,.61,.36,1);
+  --ease-soft:cubic-bezier(.4,0,.15,1);
+  --dur-f:.12s; --dur-b:.22s; --dur-s:.4s;
+
+  --max:1320px;
+  --gut:max(24px,4vw);
+  --pad-y:clamp(72px,9vw,140px);
+
+  --slash:22deg;
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+html.no-anim{scroll-behavior:auto}
+body{
+  margin:0;background:var(--bg-page);color:var(--fg-1);
+  font-family:var(--font);font-size:var(--fs-body);line-height:var(--lh-body);
+  letter-spacing:-.005em;
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+  font-feature-settings:"cv05","ss01";
+  overflow-x:hidden;
+}
+body.locked{overflow:hidden}
+h1,h2,h3,h4{font-family:var(--font);margin:0;font-weight:700;color:var(--fg-1);font-variation-settings:"opsz" 32;letter-spacing:var(--tr-h2)}
+p{margin:0}
+a{color:inherit;text-decoration:none}
+img,svg{display:block;max-width:100%}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+::selection{background:var(--swey-signal);color:#fff}
+
+/* ---------------- Layout ---------------- */
+.wrap{max-width:var(--max);margin-inline:auto;padding-inline:var(--gut)}
+section{position:relative}
+.kicker{
+  font-size:var(--fs-kicker);font-weight:600;letter-spacing:var(--tr-kicker);
+  text-transform:uppercase;color:var(--fg-accent);display:inline-flex;align-items:center;gap:10px;
+}
+.kicker::before{content:"";width:22px;height:1.5px;background:var(--swey-signal);display:inline-block}
+.kicker.on-dark{color:var(--fg-on-accent)}
+.kicker.on-dark::before{background:var(--swey-air)}
+.eyebrow{font-size:var(--fs-kicker);font-weight:600;letter-spacing:var(--tr-kicker);text-transform:uppercase;color:var(--fg-2)}
+
+.lead{font-size:var(--fs-lead);line-height:var(--lh-lead);color:var(--fg-1);max-width:56ch}
+.mute{color:var(--fg-2)}
+.on-dark{color:var(--fg-on-1)}
+.on-dark .mute{color:var(--fg-on-2)}
+.accent{color:var(--fg-accent)}
+.on-dark .accent{color:var(--fg-on-accent)}
+.signal-unit{color:var(--swey-signal)}
+.on-dark .signal-unit{color:var(--swey-air)}
+
+.section-pad{padding-block:var(--pad-y)}
+.divider-hair{height:1px;background:var(--swey-line);border:0}
+.on-dark .divider-hair{background:var(--swey-line-ink)}
+
+/* the mark */
+.mark{display:inline-block;line-height:0}
+.mark svg{height:100%;width:auto;display:block}
+
+/* ---------------- Buttons ---------------- */
+.btn{
+  --bg:var(--swey-signal);--fg:#fff;--bd:transparent;
+  display:inline-flex;align-items:center;gap:10px;
+  font-weight:600;font-size:14.5px;letter-spacing:-.004em;
+  padding:14px 22px;border-radius:var(--r-sm);
+  background:var(--bg);color:var(--fg);border:1px solid var(--bd);
+  cursor:pointer;position:relative;overflow:hidden;
+  transition:transform var(--dur-f) var(--ease),background var(--dur-b) var(--ease),box-shadow var(--dur-b) var(--ease),color var(--dur-b) var(--ease);
+  will-change:transform;
+}
+.btn .btn-arrow{transition:transform var(--dur-b) var(--ease)}
+.btn:hover{background:#0a4ec9;transform:translateY(-2px);box-shadow:0 18px 30px -16px rgba(8,92,240,.55)}
+.btn:hover .btn-arrow{transform:translateX(4px)}
+.btn:active{transform:translateY(0)}
+.btn.ghost{background:transparent;border-color:var(--swey-line);color:var(--fg-1)}
+.btn.ghost:hover{background:var(--swey-paper);border-color:var(--swey-ink);box-shadow:none;transform:translateY(-2px)}
+.btn.ink{background:var(--swey-ink);color:#fff}
+.btn.ink:hover{background:#0a0f44;box-shadow:0 18px 30px -16px rgba(5,10,52,.6)}
+.btn.on-dark-ghost{background:transparent;border-color:var(--swey-line-ink);color:var(--fg-on-1)}
+.btn.on-dark-ghost:hover{background:rgba(255,255,255,.06);border-color:var(--swey-air);box-shadow:none}
+.btn.lg{padding:16px 26px;font-size:15.5px}
+.btn.sm{padding:10px 16px;font-size:13.5px}
+.btn-arrow{width:16px;height:16px}
+
+/* ---------------- Custom cursor follower ---------------- */
+.cursor-dot,.cursor-ring{
+  position:fixed;top:0;left:0;pointer-events:none;z-index:9999;border-radius:50%;
+  transform:translate(-50%,-50%);mix-blend-mode:difference;
+}
+.cursor-dot{width:7px;height:7px;background:#fff;transition:width .2s,height .2s,opacity .2s}
+.cursor-ring{width:34px;height:34px;border:1.5px solid rgba(255,255,255,.7);transition:width .25s var(--ease),height .25s var(--ease),border-color .25s,opacity .25s}
+.cursor-ring.hover{width:62px;height:62px;border-color:var(--swey-air)}
+@media (hover:none),(pointer:coarse){.cursor-dot,.cursor-ring{display:none}}
+
+/* ---------------- Nav ---------------- */
+.nav{
+  position:fixed;inset:0 0 auto 0;z-index:1000;
+  transition:background var(--dur-b) var(--ease),border-color var(--dur-b),backdrop-filter var(--dur-b),box-shadow var(--dur-b);
+  border-bottom:1px solid transparent;
+}
+.nav.scrolled{
+  background:rgba(251,251,253,.82);backdrop-filter:saturate(160%) blur(16px);
+  border-bottom-color:var(--swey-line);box-shadow:0 1px 0 rgba(5,10,52,.02);
+}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;height:68px;gap:20px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:-.02em;font-size:18px}
+.brand .lockup{height:22px}
+.nav-links{display:flex;align-items:center;gap:30px}
+.nav-links a{font-size:14px;font-weight:500;color:var(--fg-1);position:relative;padding:6px 0;transition:color var(--dur-b)}
+.nav-links a::after{content:"";position:absolute;left:0;right:100%;bottom:0;height:1.5px;background:var(--swey-signal);transition:right var(--dur-b) var(--ease)}
+.nav-links a:hover{color:var(--swey-signal)}
+.nav-links a:hover::after{right:0}
+.nav-right{display:flex;align-items:center;gap:14px}
+
+/* language switch */
+.lang{display:inline-flex;align-items:center;border:1px solid var(--swey-line);border-radius:var(--r-pill);padding:3px;position:relative;background:rgba(255,255,255,.5)}
+.lang button{font-size:12.5px;font-weight:700;letter-spacing:.04em;padding:5px 11px;border-radius:var(--r-pill);color:var(--fg-2);position:relative;z-index:1;transition:color var(--dur-b)}
+.lang button[aria-pressed="true"]{color:#fff}
+.lang .lang-glide{position:absolute;top:3px;bottom:3px;width:calc(50% - 3px);background:var(--swey-ink);border-radius:var(--r-pill);transition:transform var(--dur-b) var(--ease);left:3px}
+.lang[data-lang="en"] .lang-glide{transform:translateX(100%)}
+
+.nav-cta{display:inline-flex}
+.burger{display:none;width:44px;height:44px;align-items:center;justify-content:center;border-radius:var(--r-sm)}
+.burger span{position:relative;width:20px;height:1.6px;background:var(--swey-ink);transition:transform var(--dur-b),opacity var(--dur-b)}
+.burger span::before,.burger span::after{content:"";position:absolute;left:0;width:20px;height:1.6px;background:var(--swey-ink);transition:transform var(--dur-b)}
+.burger span::before{top:-6px}.burger span::after{top:6px}
+body.menu-open .burger span{background:transparent}
+body.menu-open .burger span::before{transform:translateY(6px) rotate(45deg)}
+body.menu-open .burger span::after{transform:translateY(-6px) rotate(-45deg)}
+
+/* mobile menu */
+.mobile-menu{position:fixed;inset:68px 0 0 0;z-index:999;background:var(--swey-bone);transform:translateY(-8px);opacity:0;pointer-events:none;transition:transform var(--dur-s) var(--ease),opacity var(--dur-s);display:flex;flex-direction:column;padding:24px var(--gut) 40px;gap:6px}
+body.menu-open .mobile-menu{transform:none;opacity:1;pointer-events:auto}
+.mobile-menu a{font-size:26px;font-weight:600;letter-spacing:-.02em;padding:14px 0;border-bottom:1px solid var(--swey-line)}
+.mobile-menu .mobile-cta{margin-top:auto}
+@media(min-width:921px){.mobile-menu{display:none}}
+
+/* ---------------- Hero ---------------- */
+.hero{padding-top:clamp(140px,17vh,200px);padding-bottom:clamp(60px,8vw,110px);position:relative;overflow:hidden}
+.hero-canvas{position:absolute;inset:0;width:100%;height:100%;z-index:0;opacity:.9}
+.hero-grid-fade{position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:radial-gradient(120% 80% at 70% 10%,transparent 40%,var(--bg-page) 92%)}
+.hero .wrap{position:relative;z-index:2}
+.hero-top{display:flex;align-items:center;gap:12px;margin-bottom:clamp(28px,4vw,46px)}
+.pill{display:inline-flex;align-items:center;gap:9px;border:1px solid var(--swey-line);background:rgba(255,255,255,.6);border-radius:var(--r-pill);padding:7px 14px;font-size:12.5px;font-weight:600;letter-spacing:.01em}
+.pill .dot{width:7px;height:7px;border-radius:50%;background:var(--swey-signal);box-shadow:0 0 0 4px rgba(8,92,240,.16)}
+.hero h1{font-size:var(--fs-display);line-height:var(--lh-display);letter-spacing:var(--tr-display);font-weight:800;max-width:14ch}
+.hero h1 .slash-accent{color:var(--swey-signal);display:inline-block}
+.hero-sub{margin-top:clamp(24px,3vw,34px);max-width:54ch}
+.hero-ctas{display:flex;flex-wrap:wrap;gap:14px;margin-top:clamp(30px,4vw,44px)}
+.hero-meta{margin-top:clamp(54px,7vw,88px);display:grid;grid-template-columns:repeat(3,1fr);gap:28px;border-top:1px solid var(--swey-line);padding-top:28px}
+.hero-meta .num{font-size:clamp(28px,3.4vw,40px);font-weight:700;letter-spacing:-.03em;line-height:1}
+.hero-meta .lbl{margin-top:8px;font-size:13px;color:var(--fg-2);max-width:24ch;line-height:1.45}
+
+/* ---------------- Generic reveal ---------------- */
+.reveal{opacity:0;transform:translateY(22px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
+.reveal.in{opacity:1;transform:none}
+.reveal-d1{transition-delay:.08s}.reveal-d2{transition-delay:.16s}.reveal-d3{transition-delay:.24s}.reveal-d4{transition-delay:.32s}
+.stagger>*{opacity:0;transform:translateY(22px);transition:opacity .6s var(--ease),transform .6s var(--ease)}
+.stagger.in>*{opacity:1;transform:none}
+.stagger.in>*:nth-child(2){transition-delay:.07s}
+.stagger.in>*:nth-child(3){transition-delay:.14s}
+.stagger.in>*:nth-child(4){transition-delay:.21s}
+.stagger.in>*:nth-child(5){transition-delay:.28s}
+.stagger.in>*:nth-child(6){transition-delay:.35s}
+@media(prefers-reduced-motion:reduce){.reveal,.stagger>*{opacity:1!important;transform:none!important;transition:none!important}.hero-canvas{display:none}}
+
+/* ---------------- Section header ---------------- */
+.sec-head{display:grid;grid-template-columns:1fr;gap:18px;max-width:780px;margin-bottom:clamp(44px,6vw,72px)}
+.sec-head h2{font-size:var(--fs-h2);line-height:var(--lh-h2);letter-spacing:var(--tr-h2);max-width:18ch}
+.sec-head .lead{margin-top:4px}
+.section-aside{display:flex;justify-content:flex-end}
+
+/* ---------------- Footer ---------------- */
+.footer{background:var(--swey-ink);color:var(--fg-on-1);padding-top:clamp(70px,9vw,110px);padding-bottom:40px;position:relative;overflow:hidden}
+.footer-slash{position:absolute;right:-8%;top:-30%;width:min(70vw,820px);opacity:.10;pointer-events:none}
+.footer .wrap{position:relative;z-index:2}
+.footer-top{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:48px;padding-bottom:56px;border-bottom:1px solid var(--swey-line-ink)}
+.footer h3{font-size:15px;letter-spacing:-.01em;color:#fff;margin-bottom:18px}
+.footer-brand .lockup{height:26px;margin-bottom:18px}
+.footer-brand p{color:var(--fg-on-2);max-width:42ch;font-size:14px}
+.footer ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:11px}
+.footer ul a{color:var(--fg-on-2);font-size:14px;transition:color var(--dur-b)}
+.footer ul a:hover{color:#fff}
+.footer-bottom{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;padding-top:28px;color:var(--fg-on-2);font-size:13px}
+.footer-bottom a{color:var(--fg-on-2)}
+.footer-bottom a:hover{color:#fff}
+
+/* ---------------- Two camps ---------------- */
+.camp-grid{display:grid;grid-template-columns:1fr 80px 1fr;gap:0;align-items:stretch}
+.camp{padding:clamp(28px,3vw,42px);border-radius:var(--r-2xl);border:1px solid var(--swey-line);background:var(--bg-raised);position:relative}
+.camp-b{background:var(--swey-ink);border-color:transparent;box-shadow:var(--shadow-ink)}
+.camp-tag{display:inline-flex;font-size:11.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--fg-2);margin-bottom:18px}
+.camp-b .camp-tag{color:var(--swey-air)}
+.camp h3{font-size:clamp(23px,2.6vw,32px);line-height:1.12;letter-spacing:-.02em;margin-bottom:22px}
+.camp ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:16px}
+.camp li{position:relative;padding-left:26px;font-size:14.5px;line-height:1.5;color:var(--fg-1)}
+.camp-b li{color:var(--fg-on-1)}
+.camp li::before{content:"";position:absolute;left:0;top:.62em;width:14px;height:1.5px;background:var(--swey-mute)}
+.camp-b li::before{background:var(--swey-air)}
+.camp-vs{display:flex;align-items:center;justify-content:center}
+.camp-vs .mark{opacity:.35;filter:drop-shadow(0 8px 20px rgba(5,10,52,.2))}
+
+.readiness{margin-top:clamp(48px,7vw,84px);background:var(--swey-deep);border-radius:var(--r-2xl);padding:clamp(32px,4vw,56px);display:grid;grid-template-columns:1.3fr 1fr;gap:clamp(32px,4vw,56px);align-items:center;position:relative;overflow:hidden}
+.readiness::after{content:"";position:absolute;right:-10%;top:-40%;width:50%;height:160%;background:radial-gradient(circle at 60% 40%,rgba(175,233,253,.18),transparent 60%);pointer-events:none}
+.readiness-left{position:relative;z-index:2;display:flex;flex-direction:column;gap:18px;align-items:flex-start}
+.readiness-left h3{font-size:clamp(22px,2.6vw,30px);letter-spacing:-.02em}
+.readiness-left p{font-size:15px}
+.gauge-track{height:10px;border-radius:var(--r-pill);background:rgba(255,255,255,.12);overflow:hidden;position:relative}
+.gauge-fill{height:100%;width:0;background:linear-gradient(90deg,var(--swey-signal),var(--swey-air));border-radius:var(--r-pill);transition:width 1.8s var(--ease)}
+.readiness.in .gauge-fill{width:64%}
+.gauge-legend{display:flex;justify-content:space-between;margin-top:12px;font-size:12px;font-weight:600;letter-spacing:.02em;color:var(--fg-on-2)}
+.gauge-legend .accent{color:var(--swey-air)}
+.gauge-pulse{display:inline-flex;align-items:center;gap:9px;margin-top:22px;font-size:12px;color:var(--fg-on-2);font-weight:600;letter-spacing:.04em}
+.gauge-pulse .dot{width:8px;height:8px;border-radius:50%;background:var(--swey-air);box-shadow:0 0 0 5px rgba(175,233,253,.18);animation:pulse 2s var(--ease) infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(175,233,253,.3)}50%{box-shadow:0 0 0 8px rgba(175,233,253,0)}}
+
+@media(max-width:900px){
+  .camp-grid{grid-template-columns:1fr;gap:16px}
+  .camp-vs{padding:8px 0}
+  .camp-vs .mark{transform:rotate(90deg)}
+  .readiness{grid-template-columns:1fr}
+}
+
+/* ---------------- 5 Levels (dark) ---------------- */
+.levels{background:var(--swey-ink);color:var(--fg-on-1);overflow:hidden}
+.levels .sec-head h2{color:#fff}
+.levels .lead{color:var(--fg-on-2)}
+.levels-bg-slash{position:absolute;right:-12%;top:-10%;width:min(60vw,720px);opacity:.08;pointer-events:none;transform:rotate(0deg)}
+.levels-bg-slash .mark{width:100%;height:auto}
+.levels-bg-slash svg{width:100%;height:auto}
+
+.levels-climb{margin-top:clamp(8px,3vw,20px);position:relative;padding:0 6px}
+.climb-rail{position:absolute;left:6px;right:6px;top:18px;height:2px;background:var(--swey-line-ink);border-radius:2px}
+.climb-progress{position:absolute;left:0;top:0;height:100%;width:0;background:var(--swey-signal);border-radius:2px;transition:width .5s var(--ease)}
+.climb-steps{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;position:relative}
+.lvl{display:flex;flex-direction:column;align-items:center;gap:14px;padding:0;background:none;cursor:pointer}
+.lvl-code{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;letter-spacing:.02em;background:var(--swey-ink);border:1.5px solid var(--swey-line-ink);color:var(--fg-on-2);transition:all var(--dur-b) var(--ease);position:relative;z-index:2}
+.lvl-name{font-size:13px;font-weight:600;color:var(--fg-on-2);text-align:center;transition:color var(--dur-b);letter-spacing:-.01em}
+.lvl:hover .lvl-code{border-color:var(--swey-air);color:#fff;transform:translateY(-3px)}
+.lvl:hover .lvl-name{color:var(--fg-on-1)}
+.lvl.is-active .lvl-code{background:var(--swey-signal);border-color:var(--swey-signal);color:#fff;box-shadow:0 0 0 6px rgba(8,92,240,.18);transform:translateY(-3px) scale(1.05)}
+.lvl.is-active .lvl-name{color:#fff}
+
+.level-detail{margin-top:clamp(40px,5vw,64px);display:grid;grid-template-columns:auto 1.4fr 1fr;gap:clamp(28px,4vw,56px);align-items:center;padding:clamp(30px,4vw,48px);border:1px solid var(--swey-line-ink);border-radius:var(--r-2xl);background:linear-gradient(180deg,rgba(9,38,118,.25),rgba(5,10,52,.4))}
+.ld-index{display:flex;align-items:baseline;gap:6px;font-variant-numeric:tabular-nums}
+.ld-num{font-size:clamp(54px,7vw,84px);font-weight:800;letter-spacing:-.04em;line-height:.9;color:var(--swey-air)}
+.ld-of{font-size:16px;color:var(--fg-on-2);font-weight:600}
+.ld-body h3{font-size:clamp(24px,3vw,34px);letter-spacing:-.022em;color:#fff;margin-bottom:16px;line-height:1.1}
+.ld-body p{color:var(--fg-on-2);font-size:var(--fs-lead)}
+.ld-meta{display:flex;flex-direction:column;gap:22px}
+.ld-stat{display:flex;flex-direction:column;gap:6px}
+.ld-k{font-size:11.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--swey-air)}
+.ld-v{font-size:15px;color:#fff;font-weight:500;line-height:1.4}
+
+/* ---------------- 4 Phases ---------------- */
+.phase-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:1px solid var(--swey-line);border-left:1px solid var(--swey-line)}
+.phase{padding:clamp(26px,2.6vw,38px);border-right:1px solid var(--swey-line);border-bottom:1px solid var(--swey-line);background:var(--bg-raised);transition:background var(--dur-b) var(--ease),transform var(--dur-b);position:relative}
+.phase:hover{background:var(--swey-paper);transform:translateY(-3px)}
+.phase:hover .phase-num{color:var(--swey-signal)}
+.phase-num{font-size:clamp(40px,4.4vw,56px);font-weight:800;letter-spacing:-.04em;line-height:1;color:var(--swey-ink);display:flex;flex-direction:column;gap:16px;margin-bottom:22px;transition:color var(--dur-b)}
+.phase-num span{font-size:17px;font-weight:700;letter-spacing:-.01em}
+.phase p{font-size:14.5px;line-height:1.55;color:var(--fg-2)}
+
+@media(max-width:900px){
+  .climb-steps{grid-template-columns:repeat(5,1fr);gap:2px}
+  .lvl-name{font-size:11px}
+  .lvl-code{width:34px;height:34px;font-size:11.5px}
+  .level-detail{grid-template-columns:1fr;gap:24px}
+  .ld-index{align-items:center;justify-content:flex-start}
+  .phase-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:560px){
+  .climb-steps{grid-template-columns:repeat(5,1fr)}
+  .lvl-name{display:none}
+  .phase-grid{grid-template-columns:1fr}
+}
+
+/* ---------------- Engine: 4 layers ---------------- */
+.layers{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--swey-line);border-radius:var(--r-2xl);overflow:hidden}
+.layer{padding:clamp(26px,3vw,40px);background:var(--bg-raised);border-bottom:1px solid var(--swey-line);border-right:1px solid var(--swey-line);position:relative;transition:background var(--dur-b) var(--ease)}
+.layer:nth-child(2n){border-right:0}
+.layer:nth-child(n+3){ }
+.layer:nth-child(3),.layer:nth-child(4){border-bottom:0}
+.layer:hover{background:var(--swey-paper)}
+.layer:hover .layer-no{color:var(--swey-signal)}
+.layer::before{content:"";position:absolute;left:0;top:0;height:100%;width:3px;background:transparent;transition:background var(--dur-b)}
+.layer:hover::before{background:var(--swey-signal)}
+.layer-head{display:flex;align-items:baseline;gap:14px;margin-bottom:14px}
+.layer-no{font-size:13px;font-weight:700;letter-spacing:.1em;color:var(--swey-signal);transition:color var(--dur-b)}
+.layer h3{font-size:clamp(19px,2.2vw,24px);letter-spacing:-.018em}
+.layer p{font-size:14.5px;line-height:1.55;color:var(--fg-2)}
+
+.moat{margin-top:clamp(40px,5vw,60px);display:grid;grid-template-columns:auto 1fr;gap:clamp(24px,3vw,40px);align-items:center;padding:clamp(30px,4vw,48px);background:var(--swey-ink);color:var(--fg-on-1);border-radius:var(--r-2xl);position:relative;overflow:hidden}
+.moat-mark{width:64px;height:64px;border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;background:rgba(8,92,240,.14);border:1px solid var(--swey-line-ink)}
+.moat h3{color:#fff;font-size:clamp(20px,2.4vw,28px);letter-spacing:-.02em;margin:12px 0 12px;line-height:1.18}
+.moat p{color:var(--fg-on-2);max-width:60ch}
+.moat .kicker{color:var(--swey-air)}
+.moat .kicker::before{background:var(--swey-air)}
+
+/* ---------------- Flow track ---------------- */
+.flow-track{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(6,1fr);gap:0;counter-reset:step}
+.flow-track li{position:relative;padding:clamp(20px,2vw,28px) 22px 0 0;border-top:1.5px solid var(--swey-ink)}
+.flow-track li::before{content:"";position:absolute;top:-5px;left:0;width:8px;height:8px;border-radius:50%;background:var(--swey-ink)}
+.flow-track li:hover::before{background:var(--swey-signal);box-shadow:0 0 0 5px rgba(8,92,240,.14)}
+.flow-track li b{display:block;font-size:12px;font-weight:700;letter-spacing:.1em;color:var(--swey-signal);margin-bottom:8px}
+.flow-track li span{display:block;font-size:clamp(17px,1.9vw,21px);font-weight:700;letter-spacing:-.018em;margin-bottom:10px}
+.flow-track li p{font-size:13.5px;line-height:1.5;color:var(--fg-2)}
+
+@media(max-width:1000px){.layers{grid-template-columns:1fr}.layer{border-right:0}.layer:nth-child(3){border-bottom:1px solid var(--swey-line)}.moat{grid-template-columns:1fr}}
+@media(max-width:900px){.flow-track{grid-template-columns:1fr 1fr 1fr}}
+@media(max-width:620px){.flow-track{grid-template-columns:1fr 1fr}}
+@media(max-width:420px){.flow-track{grid-template-columns:1fr}}
+
+/* ---------------- ICP ---------------- */
+.icp-grid{display:grid;grid-template-columns:1.25fr .9fr;gap:clamp(36px,5vw,72px);align-items:center}
+.icp-text h2{margin-top:16px;max-width:20ch}
+.icp-text .lead{margin-top:20px}
+.icp-chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:28px}
+.icp-chips span{border:1px solid var(--swey-line);background:var(--bg-raised);border-radius:var(--r-pill);padding:9px 16px;font-size:13.5px;font-weight:600;color:var(--swey-ink)}
+.icp-card{background:var(--swey-ink);color:var(--fg-on-1);border-radius:var(--r-2xl);padding:clamp(30px,3.5vw,44px);position:relative;box-shadow:var(--shadow-ink)}
+.icp-qmark{width:56px;height:56px;border-radius:var(--r-md);background:rgba(8,92,240,.16);display:flex;align-items:center;justify-content:center;margin-bottom:24px}
+.icp-card blockquote{font-size:clamp(19px,2.2vw,25px);line-height:1.4;letter-spacing:-.018em;color:#fff;margin:0;font-weight:500}
+.icp-attr{margin-top:26px;padding-top:22px;border-top:1px solid var(--swey-line-ink);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.icp-who{font-weight:700;color:#fff;font-size:14.5px}
+.icp-stage{font-size:13px;color:var(--swey-air);font-weight:600}
+
+/* ---------------- Offers (dark) ---------------- */
+.offers{background:var(--swey-paper)}
+.offers .sec-head h2{color:var(--swey-ink)}
+.offers .sec-head{margin-inline:auto;text-align:left}
+.offer-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;align-items:stretch}
+.offer{background:var(--bg-raised);border:1px solid var(--swey-line);border-radius:var(--r-xl);padding:clamp(24px,2.4vw,32px);display:flex;flex-direction:column;gap:14px;position:relative;transition:transform var(--dur-b) var(--ease),box-shadow var(--dur-b),border-color var(--dur-b)}
+.offer:hover{transform:translateY(-4px);box-shadow:var(--shadow-card);border-color:var(--swey-ink)}
+.offer-tag{font-size:11.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--swey-signal)}
+.offer h3{font-size:clamp(20px,2.2vw,25px);letter-spacing:-.02em}
+.offer>p{font-size:14px;line-height:1.5;color:var(--fg-2);min-height:auto}
+.offer-price{display:flex;align-items:baseline;gap:8px;padding-top:6px}
+.offer-price .cur{font-size:12px;font-weight:700;letter-spacing:.1em;color:var(--fg-2)}
+.offer-price .amt{font-size:clamp(28px,3.4vw,38px);font-weight:800;letter-spacing:-.03em;color:var(--swey-ink);font-variant-numeric:tabular-nums}
+.offer-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:11px}
+.offer-list li{position:relative;padding-left:24px;font-size:13.5px;line-height:1.45;color:var(--fg-1)}
+.offer-list li::before{content:"";position:absolute;left:0;top:.58em;width:14px;height:1.5px;background:var(--swey-signal)}
+.offer .btn{margin-top:auto;width:fit-content}
+.offer-featured{background:var(--swey-ink);color:var(--fg-on-1);border-color:transparent;box-shadow:var(--shadow-ink)}
+.offer-featured .offer-tag{color:var(--swey-air)}
+.offer-featured h3{color:#fff}
+.offer-featured>p{color:var(--fg-on-2)}
+.offer-featured .offer-price .amt{color:#fff}
+.offer-featured .offer-price .cur{color:var(--fg-on-2)}
+.offer-featured .offer-list li{color:#fff}
+.offer-featured .offer-list li::before{background:var(--swey-air)}
+.offer-flag{position:absolute;top:-12px;right:18px;background:var(--swey-signal);color:#fff;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:5px 12px;border-radius:var(--r-pill);box-shadow:0 8px 18px -8px rgba(8,92,240,.6)}
+.offers-note{margin-top:30px;font-size:13px;text-align:center}
+
+/* ---------------- CTA ---------------- */
+.cta-card{background:var(--swey-deep);border-radius:var(--r-2xl);padding:clamp(40px,6vw,84px);position:relative;overflow:hidden;text-align:center}
+.cta-bg-slash{position:absolute;right:-8%;top:-30%;width:min(45vw,540px);opacity:.16;pointer-events:none}
+.cta-inner{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:18px}
+.cta-inner h2{color:#fff;max-width:18ch}
+.cta-inner .lead{color:var(--fg-on-2);max-width:54ch;text-align:center}
+.cta-actions{display:flex;align-items:center;gap:22px;margin-top:10px;flex-wrap:wrap;justify-content:center}
+.cta-mail{font-size:16px;font-weight:600;color:var(--swey-air);border-bottom:1.5px solid rgba(175,233,253,.4);padding-bottom:2px;transition:border-color var(--dur-b)}
+.cta-mail:hover{border-color:var(--swey-air)}
+
+@media(max-width:1000px){.offer-grid{grid-template-columns:1fr 1fr}.icp-grid{grid-template-columns:1fr}}
+@media(max-width:600px){.offer-grid{grid-template-columns:1fr}.offer-flag{right:14px}}
+
+/* ---------------- Responsive base ---------------- */
+@media(max-width:920px){
+  .nav-links{display:none}
+  .nav-right .nav-cta{display:none}
+  .burger{display:inline-flex}
+  .hero-meta{grid-template-columns:1fr;gap:22px}
+  .hero h1{max-width:none}
+}
+@media(max-width:520px){
+  :root{--gut:20px}
+  .lang button{padding:5px 9px}
+}
+</style>
+</head>
+<body>
+
+<!-- custom cursor -->
+<div class="cursor-ring" id="cursorRing"></div>
+<div class="cursor-dot" id="cursorDot"></div>
+
+<!-- ============ NAV ============ -->
+<nav class="nav" id="nav">
+  <div class="wrap nav-inner">
+    <a href="#top" class="brand" data-cursor aria-label="SWEY">
+      <span class="mark lockup" style="height:22px">
+        <svg viewBox="0 0 300 56" role="img" aria-label="SWEY">
+          <polygon points="6,50 24,6 36,6 18,50" fill="#085CF0"></polygon>
+          <polygon points="36,50 54,6 66,6 48,50" fill="#050A34"></polygon>
+          <text x="86" y="48" font-family="Inter, sans-serif" font-weight="800" font-size="46" letter-spacing="-1.6" fill="#050A34">SWEY</text>
+        </svg>
+      </span>
+    </a>
+    <div class="nav-links">
+      <a href="#method" data-cursor data-hu="Módszertan" data-en="Method">Módszertan</a>
+      <a href="#levels" data-cursor data-hu="5 szint" data-en="5 Levels">5 szint</a>
+      <a href="#engine" data-cursor data-hu="Rendszer" data-en="The system">Rendszer</a>
+      <a href="#offers" data-cursor data-hu="Ajánlatok" data-en="Offers">Ajánlatok</a>
+      <a href="#contact" data-cursor data-hu="Kapcsolat" data-en="Contact">Kapcsolat</a>
+    </div>
+    <div class="nav-right">
+      <div class="lang" id="lang" data-lang="en" role="group" aria-label="Language">
+        <span class="lang-glide"></span>
+        <button data-set="hu" aria-pressed="false">HU</button>
+        <button data-set="en" aria-pressed="true">EN</button>
+      </div>
+      <a href="#contact" class="btn sm nav-cta" data-cursor>
+        <span data-hu="Foglalj hívást" data-en="Book a call">Foglalj hívást</span>
+        <svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="square" stroke-linejoin="miter"/></svg>
+      </a>
+      <button class="burger" id="burger" aria-label="Menu" aria-expanded="false"><span></span></button>
+    </div>
+  </div>
+</nav>
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#method" data-hu="Módszertan" data-en="Method">Módszertan</a>
+  <a href="#levels" data-hu="5 szint" data-en="5 Levels">5 szint</a>
+  <a href="#engine" data-hu="A rendszer" data-en="The system">A rendszer</a>
+  <a href="#offers" data-hu="Ajánlatok" data-en="Offers">Ajánlatok</a>
+  <a href="#contact" data-hu="Kapcsolat" data-en="Contact">Kapcsolat</a>
+  <a href="#contact" class="btn lg mobile-cta" data-cursor>
+    <span data-hu="Foglalj hívást" data-en="Book a call">Foglalj hívást</span>
+  </a>
+</div>
+
+<main id="top">
+
+<!-- ============ HERO ============ -->
+<header class="hero" id="hero">
+  <canvas class="hero-canvas" id="heroCanvas"></canvas>
+  <div class="hero-grid-fade"></div>
+  <div class="wrap">
+    <div class="hero-top">
+      <span class="pill reveal"><span class="dot"></span><span data-hu="AI Operations partner · Budapest" data-en="AI Operations partner · Budapest">AI Operations partner · Budapest</span></span>
+    </div>
+    <h1 class="reveal reveal-d1">
+      <span data-hu="Az AI nem eszköz." data-en="AI isn't a tool.">Az AI nem eszköz.</span><br>
+      <span data-hu="Hanem" data-en="It's an">Hanem</span> <span class="slash-accent" data-hu="operációs rendszer." data-en="operating system.">operációs rendszer.</span>
+    </h1>
+    <p class="lead hero-sub reveal reveal-d2" data-hu="SWEY AIOS egy stratégiai partneri engagement: felépítjük és átadjuk a céged AI-vezérelt operációs rendszerét — hogy a csapatod skálázódjon, anélkül, hogy te mindenhez értenél, és anélkül, hogy embereket toboroznál." data-en="SWEY AIOS is a strategic partnership: we build and hand over your company's AI-driven operating system — so your team scales without you needing to understand everything, and without hiring more people.">
+      SWEY AIOS egy stratégiai partneri engagement: felépítjük és átadjuk a céged AI-vezérelt operációs rendszerét — hogy a csapatod skálázódjon, anélkül, hogy te mindenhez értenél, és anélkül, hogy embereket toboroznál.
+    </p>
+    <div class="hero-ctas reveal reveal-d3">
+      <a href="#contact" class="btn lg" data-cursor>
+        <span data-hu="Mérd fel a készségszinted" data-en="Assess your readiness">Mérd fel a készségszinted</span>
+        <svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="square" stroke-linejoin="miter"/></svg>
+      </a>
+      <a href="#engine" class="btn ghost lg" data-cursor>
+        <span data-hu="Hogyan működik" data-en="How it works">Hogyan működik</span>
+      </a>
+    </div>
+    <div class="hero-meta reveal reveal-d4">
+      <div>
+        <div class="num"><span class="counter" data-to="6">0</span><span class="signal-unit"> hét</span></div>
+        <div class="lbl" data-hu="mérhető eredmény a kezedben — nem ígéret, hanem leadott rendszer" data-en="measurable results in your hands — not a promise, a delivered system">mérhető eredmény a kezedben — nem ígéret, hanem leadott rendszer</div>
+      </div>
+      <div>
+        <div class="num"><span class="counter" data-to="5">0</span><span class="signal-unit"> szint</span></div>
+        <div class="lbl" data-hu="a SWEY Olvashatóság skálán: alapítótól az autonómiáig" data-en="on the SWEY Legibility scale: from founder-dependent to autonomous">a SWEY Olvashatóság skálán: alapítótól az autonómiáig</div>
+      </div>
+      <div>
+        <div class="num"><span class="counter" data-to="0" data-suffix="">∞</span></div>
+        <div class="lbl" data-hu="a csapatod saját erőforrásból viszi tovább — nincs folyamatos függőség" data-en="your team carries it forward on their own — no ongoing dependency">a csapatod saját erőforrásból viszi tovább — nincs folyamatos függőség</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ============ TWO CAMPS ============ -->
+<section class="camps section-pad" id="camps">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="kicker"><span data-hu="A probléma" data-en="The problem">A probléma</span></span>
+      <h2><span data-hu="Két tábor van. Te melyikben vagy?" data-en="There are two camps. Which one are you in?">Két tábor van. Te melyikben vagy?</span></h2>
+      <p class="lead" data-hu="Mindkét cég AI-t használ. Az egyik eszközökben gondolkodik — chat, automatizálás, egy-egy folyamat. A másik rendszerben. A különbség nem a technológiában van, hanem abban, hogy ki fut a cégen belül: az alapító, vagy egy önállóan működő rendszer." data-en="Both companies use AI. One thinks in tools — chat, automation, a process here and there. The other thinks in systems. The difference isn't the technology — it's who runs the company from within: the founder, or a system that runs itself.">
+        Mindkét cég AI-t használ. Az egyik eszközökben gondolkodik — chat, automatizálás, egy-egy folyamat. A másik rendszerben. A különbség nem a technológiában van, hanem abban, hogy ki fut a cégen belül: az alapító, vagy egy önállóan működő rendszer.
+      </p>
+    </div>
+
+    <div class="camp-grid reveal">
+      <article class="camp camp-a">
+        <div class="camp-tag" data-hu="Eszköz-szemlélet" data-en="Tool mindset">Eszköz-szemlélet</div>
+        <h3 data-hu="Az alapító a rendszer." data-en="The founder is the system.">Az alapító a rendszer.</h3>
+        <ul>
+          <li data-hu="Minden döntés, kapcsolat és folyamat rajtad fut — te vagy a szűk keresztmetszet." data-en="Every decision, relationship and process runs through you — you are the bottleneck.">Minden döntés, kapcsolat és folyamat rajtad fut — te vagy a szűk keresztmetszet.</li>
+          <li data-hu="AI-t árulnak neked, de nem integrálják a működésbe: izolált eszközök, szigetszerű adatok." data-en="AI gets sold to you, but never woven into operations: isolated tools, siloed data.">AI-t árulnak neked, de nem integrálják a működésbe: izolált eszközök, szigetszerű adatok.</li>
+          <li data-hu="A növekedés fejlétszámot követel — minden új ügyfél több embert jelent." data-en="Growth demands headcount — every new client means more people.">A növekedés fejlétszámot követel — minden új ügyfél több embert jelent.</li>
+          <li data-hu="Ha kilépsz, megáll a gépezet." data-en="Step out, and the machine stops.">Ha kilépsz, megáll a gépezet.</li>
+        </ul>
+      </article>
+
+      <div class="camp-vs" aria-hidden="true">
+        <span class="mark" style="height:46px"><svg viewBox="0 0 80 56"><polygon points="6,50 24,6 36,6 18,50" fill="#085CF0"/><polygon points="36,50 54,6 66,6 48,50" fill="#050A34"/></svg></span>
+      </div>
+
+      <article class="camp camp-b on-dark">
+        <div class="camp-tag accent" data-hu="Rendszer-szemlélet" data-en="System mindset">Rendszer-szemlélet</div>
+        <h3 class="on-dark" data-hu="A rendszer fut. Te irányítasz." data-en="The system runs. You steer.">A rendszer fut. Te irányítasz.</h3>
+        <ul>
+          <li data-hu="A napi működést AI-ügynökök és dokumentált folyamatok viszik — te a stratégián dolgozol." data-en="Day-to-day operations run on AI agents and documented processes — you work on strategy.">A napi működést AI-ügynökök és dokumentált folyamatok viszik — te a stratégián dolgozol.</li>
+          <li data-hu="Az AI be van építve a csapat operációs rendszerébe — mindenki ugyanarra az igazságra lát." data-en="AI is built into the team's operating system — everyone sees the same source of truth.">Az AI be van építve a csapat operációs rendszerébe — mindenki ugyanarra az igazságra lát.</li>
+          <li data-hu="A skálázódás feladat-, nem főlétszám-kérdés." data-en="Scaling becomes a question of tasks, not headcount.">A skálázódás feladat-, nem főlétszám-kérdés.</li>
+          <li data-hu="A csapatod önállóan viszi tovább — belülről skálázódik." data-en="Your team carries it forward — it scales from within.">A csapatod önállóan viszi tovább — belülről skálázódik.</li>
+        </ul>
+      </article>
+    </div>
+
+    <div class="readiness reveal reveal-d2">
+      <div class="readiness-left">
+        <span class="kicker on-dark"><span data-hu="Készség-pontszám" data-en="Readiness Score">Készség-pontszám</span></span>
+        <h3 class="on-dark" data-hu="Hol áll most a céged a skálán?" data-en="Where does your company sit on the scale today?">Hol áll most a céged a skálán?</h3>
+        <p class="on-dark mute" data-hu="Az első hívás során felmérjük, hol tartasz az Olvashatóság öt szintjén — és pontosan megmondjuk, mit nyerhetnél a következő szinttel. Nem értékesítési hívás. Egy mérés." data-en="In the first call we assess where you sit on the five levels of Legibility — and tell you exactly what the next level is worth. It's not a sales call. It's a measurement.">
+          Az első hívás során felmérjük, hol tartasz az Olvashatóság öt szintjén — és pontosan megmondjuk, mit nyerhetnél a következő szinttel. Nem értékesítési hívás. Egy mérés.
+        </p>
+        <a href="#contact" class="btn lg" data-cursor>
+          <span data-hu="Mérd fel a szinted" data-en="Measure your level">Mérd fel a szinted</span>
+          <svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="square"/></svg>
+        </a>
+      </div>
+      <div class="readiness-gauge">
+        <div class="gauge-track"><div class="gauge-fill" id="gaugeFill"></div></div>
+        <div class="gauge-legend">
+          <span data-hu="L1 Alapító-függő" data-en="L1 Founder-dependent">L1 Alapító-függő</span>
+          <span class="accent" data-hu="L5 Autonóm" data-en="L5 Autonomous">L5 Autonóm</span>
+        </div>
+        <div class="gauge-pulse"><span class="dot"></span><span data-hu="Élő helyzetkép" data-en="Live read">Élő helyzetkép</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ METHODOLOGY: 5 LEVELS ============ -->
+<section class="levels section-pad on-dark" id="levels">
+  <div class="levels-bg-slash" aria-hidden="true">
+    <span class="mark"><svg viewBox="0 0 80 56"><polygon points="6,50 24,6 36,6 18,50" fill="#085CF0"/><polygon points="36,50 54,6 66,6 48,50" fill="#092676"/></svg></span>
+  </div>
+  <div class="wrap" style="position:relative;z-index:2">
+    <div class="sec-head on-dark reveal">
+      <span class="kicker on-dark"><span data-hu="A módszer — SWEY Olvashatóság" data-en="The method — SWEY Legibility">A módszer — SWEY Olvashatóság</span></span>
+      <h2 class="on-dark"><span data-hu="Az öt szint, amin minden cég végigmegy." data-en="The five levels every company moves through.">Az öt szint, amin minden cég végigmegy.</span></h2>
+      <p class="lead on-dark mute" data-hu="Nem az a kérdés, hogy használod-e az AI-t. Az a kérdés, hogy a céged melyik szinten áll — és mi tart vissza a következőtől. A SWEY Olvashatóság skála öt, jól meghatározott szintet ír le az alapítótól függő működéstől az önállóan futó rendszerig." data-en="The question isn't whether you use AI. It's which level your company sits at — and what's holding you back from the next. The SWEY Legibility scale describes five well-defined stages, from founder-dependent operation to a system that runs itself.">
+        Nem az a kérdés, hogy használod-e az AI-t. Az a kérdés, hogy a céged melyik szinten áll — és mi tart vissza a következőtől. A SWEY Olvashatóság skála öt, jól meghatározott szintet ír le az alapítótól függő működéstől az önállóan futó rendszerig.
+      </p>
+    </div>
+
+    <div class="levels-climb reveal">
+      <div class="climb-rail"><div class="climb-progress" id="climbProgress"></div></div>
+      <div class="climb-steps">
+        <button class="lvl is-active" data-lvl="1" style="--i:0" data-cursor>
+          <span class="lvl-code">L1</span>
+          <span class="lvl-name" data-hu="Alapító-függő" data-en="Founder-dependent">Alapító-függő</span>
+        </button>
+        <button class="lvl" data-lvl="2" style="--i:1" data-cursor>
+          <span class="lvl-code">L2</span>
+          <span class="lvl-name" data-hu="Dokumentált" data-en="Documented">Dokumentált</span>
+        </button>
+        <button class="lvl" data-lvl="3" style="--i:2" data-cursor>
+          <span class="lvl-code">L3</span>
+          <span class="lvl-name" data-hu="Asszisztált" data-en="Assisted">Asszisztált</span>
+        </button>
+        <button class="lvl" data-lvl="4" style="--i:3" data-cursor>
+          <span class="lvl-code">L4</span>
+          <span class="lvl-name" data-hu="Részben autonóm" data-en="Semi-autonomous">Részben autonóm</span>
+        </button>
+        <button class="lvl" data-lvl="5" style="--i:4" data-cursor>
+          <span class="lvl-code">L5</span>
+          <span class="lvl-name" data-hu="Autonóm" data-en="Autonomous">Autonóm</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="level-detail" id="levelDetail">
+      <div class="ld-index"><span class="ld-num">01</span> <span class="ld-of">/ 05</span></div>
+      <div class="ld-body">
+        <h3 id="ldTitle">Alapító-függő működés</h3>
+        <p id="ldDesc" class="on-dark mute lead">Minden a te fejedben van. A folyamatok nincsenek leírva, a döntések nálad futnak át, a tudás a csapat helyett benned lakik. A cédged addig működik, amíg te is.</p>
+      </div>
+      <div class="ld-meta" id="ldMeta">
+        <div class="ld-stat"><span class="ld-k" data-hu="Amit látunk" data-en="What we see">Amit látunk</span><span class="ld-v" data-hu="Egyetlen ember a szűk keresztmetszet" data-en="A single person as the bottleneck">Egyetlen ember a szűk keresztmetszet</span></div>
+        <div class="ld-stat"><span class="ld-k" data-hu="Amit nyersz" data-en="What you gain">Amit nyersz</span><span class="ld-v" data-hu="A tudás kikerül a fejedből a rendszerbe" data-en="Knowledge moves from your head into the system">A tudás kikerül a fejedből a rendszerbe</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 4 PHASES ============ -->
+<section class="phases section-pad" id="phases">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="kicker"><span data-hu="Hogyan építjük fel" data-en="How we build it">Hogyan építjük fel</span></span>
+      <h2><span data-hu="Négy fázis. Az elején mérünk, a végén átadunk." data-en="Four phases. We measure at the start, hand over at the end.">Négy fázis. Az elején mérünk, a végén átadunk.</span></h2>
+    </div>
+    <div class="phase-grid stagger">
+      <article class="phase" data-cursor>
+        <div class="phase-num">01<span data-hu="Felfedezés" data-en="Discover">Felfedezés</span></div>
+        <p data-hu="Felmérjük a jelenlegi szintet, feltérképezzük a folyamatokat és a kockázatokat. Megkapod a készség-pontszámodat és az első konkrét lépéseket." data-en="We assess the current level, map the processes and risks. You get your Readiness Score and the first concrete steps.">Felmérjük a jelenlegi szintet, feltérképezzük a folyamatokat és a kockázatokat. Megkapod a készség-pontszámodat és az első konkrét lépéseket.</p>
+      </article>
+      <article class="phase" data-cursor>
+        <div class="phase-num">02<span data-hu="Tervezés" data-en="Design">Tervezés</span></div>
+        <p data-hu="Megtervezzük a cégspecifikus operációs rendszert: melyik munkafolyamat hova kerül, mit futtat AI, mit csapat. Minden döntés mérhető célhoz kötött." data-en="We design the company-specific operating system: which workflow goes where, what AI runs, what the team runs. Every decision ties to a measurable goal.">Megtervezzük a cégspecifikus operációs rendszert: melyik munkafolyamat hova kerül, mit futtat AI, mit csapat. Minden döntés mérhető célhoz kötött.</p>
+      </article>
+      <article class="phase" data-cursor>
+        <div class="phase-num">03<span data-hu="Építés" data-en="Build">Építés</span></div>
+        <p data-hu="Felépítjük és bekötjük a rendszert az eszközeidbe — a csapatod napi valóságába, nem egy külön labiba. Változás-csökkentő kapuk (eval) mindenhol: a hiba nem jut el hozzád." data-en="We build and wire the system into your tools — into your team's daily reality, not a separate lab. Variance-reducing gates everywhere: errors never reach you.">Felépítjük és bekötjük a rendszert az eszközeidbe — a csapatod napi valóságába, nem egy külön labiba. Változás-csökkentő kapuk (eval) mindenhol: a hiba nem jut el hozzád.</p>
+      </article>
+      <article class="phase" data-cursor>
+        <div class="phase-num">04<span data-hu="Átadás" data-en="Handover">Átadás</span></div>
+        <p data-hu="Átadjuk a rendszert és a tudást, hogy a csapatod önállóan futtassa. Nem függőség az eredmény, hanem képesség — te irányítasz, ők viszik." data-en="We hand over the system and the knowledge so your team runs it on their own. The result isn't dependency — it's capability. You steer, they carry it.">Átadjuk a rendszert és a tudást, hogy a csapatod önállóan futtassa. Nem függőség az eredmény, hanem képesség — te irányítasz, ők viszik.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============ THE ENGINE: 4 LAYERS ============ -->
+<section class="engine section-pad" id="engine">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="kicker"><span data-hu="A motorháztető alatt" data-en="Under the hood">A motorháztető alatt</span></span>
+      <h2><span data-hu="Négy réteg. Egy önállóan futó rendszer." data-en="Four layers. One self-running system.">Négy réteg. Egy önállóan futó rendszer.</span></h2>
+      <p class="lead" data-hu="Az AIOS nem egyetlen szoftver, hanem egy rétegezett operációs rendszer a céged számára. Mindegyik réteg a másikra épül — és ami a legfontosabb: az egészet úgy adjuk át, hogy a csapatod megértse és futtassa." data-en="AIOS isn't a single piece of software — it's a layered operating system for your company. Each layer stands on the next, and crucially: we hand it over so your team understands and runs it.">
+        Az AIOS nem egyetlen szoftver, hanem egy rétegezett operációs rendszer a céged számára. Mindegyik réteg a másikra épül — és ami a legfontosabb: az egészet úgy adjuk át, hogy a csapatod megértse és futtassa.
+      </p>
+    </div>
+
+    <div class="layers reveal">
+      <div class="layer" data-cursor>
+        <div class="layer-head"><span class="layer-no">01</span><h3 data-hu="Irányítási héj" data-en="Orchestration shell">Irányítási héj</h3></div>
+        <p data-hu="Az ügynökök org-diagramja, a feladat- és jóváhagyási tábla, a költségvezérlés kemény stoppal. Ez a látható felület, amit a csapatod naponta használ." data-en="The agents' org chart, the task and approval board, cost control with a hard stop. This is the visible surface your team uses every day.">Az ügynökök org-diagramja, a feladat- és jóváhagyási tábla, a költségvezérlés kemény stoppal. Ez a látható felület, amit a csapatod naponta használ.</p>
+      </div>
+      <div class="layer" data-cursor>
+        <div class="layer-head"><span class="layer-no">02</span><h3 data-hu="Munkaügyi rendszer — az alap" data-en="Workspace OS — the substrate">Munkaügyi rendszer — az alap</h3></div>
+        <p data-hu="Megosztott kontextus, réteges memória, ülés-kezelés és költség-kormányzó. Ez az a rész, amit a versenytársaknak nincs — itt lakik az igazi előny." data-en="Shared context, tiered memory, session management and a budget governor. This is the part competitors don't have — the real edge lives here.">Megosztott kontextus, réteges memória, ülés-kezelés és költség-kormányzó. Ez az a rész, amit a versenytársaknak nincs — itt lakik az igazi előny.</p>
+      </div>
+      <div class="layer" data-cursor>
+        <div class="layer-head"><span class="layer-no">03</span><h3 data-hu="Részleg-modulok" data-en="Department modules">Részleg-modulok</h3></div>
+        <p data-hu="Lead-gen, értékesítés, termelékenység, tartalom, pénzügy — mindegyik egy önálló modul, adapterekkel a meglévő eszközeidhez. Nem új szoftver, hanem bekötött képességek." data-en="Lead-gen, sales, productivity, content, finance — each a standalone module with adapters to your existing tools. Not new software, but wired-in capabilities.">Lead-gen, értékesítés, termelékenység, tartalom, pénzügy — mindegyik egy önálló modul, adapterekkel a meglévő eszközeidhez. Nem új szoftver, hanem bekötött képességek.</p>
+      </div>
+      <div class="layer" data-cursor>
+        <div class="layer-head"><span class="layer-no">04</span><h3 data-hu="Átadás" data-en="Delivery">Átadás</h3></div>
+        <p data-hu="Két üléses, grafikus onboarding — terminál nélkül. A csapatod megtanulja a rendszert a saját valóságában, és a végén önállóan viszi tovább." data-en="A two-session, graphical onboarding — no terminal. Your team learns the system in its own reality, and carries it forward on its own at the end.">Két üléses, grafikus onboarding — terminál nélkül. A csapatod megtanulja a rendszert a saját valóságában, és a végén önállóan viszi tovább.</p>
+      </div>
+    </div>
+
+    <div class="moat reveal reveal-d2">
+      <div class="moat-mark"><span class="mark" style="height:40px"><svg viewBox="0 0 80 56"><polygon points="6,50 24,6 36,6 18,50" fill="#085CF0"/><polygon points="36,50 54,6 66,6 48,50" fill="#050A34"/></svg></span></div>
+      <div>
+        <span class="kicker"><span data-hu="A miénk" data-en="What's ours">A miénk</span></span>
+        <h3 data-hu="Az eszközök árucikké váltak. A rendszer, a memória és a kapuk nem." data-en="Tools became a commodity. The system, the memory and the gates didn't.">Az eszközök árucikké váltak. A rendszer, a memória és a kapuk nem.</h3>
+        <p class="mute" data-hu="Minden összehasonlítható nyílt forrású megoldás egyetlen eszközön, egyetlen felhasználóra épül. A mi rendszerünkön több eszköz, több ügynök és a csapatod dolgozik együtt — kereszttévesztés-mentes memóriával, írási kapukkal és első osztályú mérési (eval) réteggel." data-en="Every comparable open-source solution is built for one tool, one user. Ours runs across multiple devices, multiple agents and your team together — with cross-device memory, write-gates and a first-class evaluation layer.">
+          Minden összehasonlítható nyílt forrású megoldás egyetlen eszközön, egyetlen felhasználóra épül. A mi rendszerünkön több eszköz, több ügynök és a csapatod dolgozik együtt — kereszttévesztés-mentes memóriával, írási kapukkal és első osztályú mérési (eval) réteggel.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ HOW A UNIT OF WORK FLOWS ============ -->
+<section class="flow section-pad" id="flow">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="kicker"><span data-hu="Hogyan fut egy feladat" data-en="How a task runs">Hogyan fut egy feladat</span></span>
+      <h2><span data-hu="Egy feladat élete, a befutástól az átadásig." data-en="The life of a task, from intake to handover.">Egy feladat élete, a befutástól az átadásig.</span></h2>
+    </div>
+    <ol class="flow-track stagger">
+      <li><b>01</b><span data-hu="Befutás" data-en="Intake">Befutás</span><p data-hu="A feladat a táblára vagy a postafiókodba érkezik. Az ügynök csak javasol — sosem dönt helyetted." data-en="The task arrives on the board or in your inbox. The agent only proposes — never decides for you.">A feladat a táblára vagy a postafiókodba érkezik. Az ügynök csak javasol — sosem dönt helyetted.</p></li>
+      <li><b>02</b><span data-hu="Kontextus" data-en="Context">Kontextus</span><p data-hu="A rendszer beadagolja a cég memóriáját és az előre összesített mutatókat. Az ügynök úgy indul, hogy már tudja, hol tart a cég." data-en="The system injects the company memory and pre-aggregated metrics. The agent starts already knowing where the business stands.">A rendszer beadagolja a cég memóriáját és az előre összesített mutatókat. Az ügynök úgy indul, hogy már tudja, hol tart a cég.</p></li>
+      <li><b>03</b><span data-hu="Futtatás" data-en="Run">Futtatás</span><p data-hu="A munka az eszközeidben történik — valós API-hívások, valós adatok. Kockázatos lépéseknél ellenőrzőpont." data-en="The work happens in your tools — real API calls, real data. Checkpoints at risky steps.">A munka az eszközeidben történik — valós API-hívások, valós adatok. Kockázatos lépéseknél ellenőrzőpont.</p></li>
+      <li><b>04</b><span data-hu="Kapu (eval)" data-en="Gate (eval)">Kapu (eval)</span><p data-hu="Változás-csökkentő validátor fut az eredményen, mielőtt hozzád ér. A varianciacsökkentés maga a termék." data-en="A variance-reducing validator runs on the result before it reaches you. Variance reduction is the product.">Változás-csökkentő validátor fut az eredményen, mielőtt hozzád ér. A varianciacsökkentés maga a termék.</p></li>
+      <li><b>05</b><span data-hu="Jóváhagyás" data-en="Approve">Jóváhagyás</span><p data-hu="Az eredmény „Ellenőrzésre” állapotban landol. Egy ember dönt — te vagy a csapatod." data-en="The result lands “In Review”. A human decides — you or your team.">Az eredmény „Ellenőrzésre” állapotban landol. Egy ember dönt — te vagy a csapatod.</p></li>
+      <li><b>06</b><span data-hu="Tanulás" data-en="Learn">Tanulás</span><p data-hu="Éjszaka a rendszer összesíti, a memóriába gyűjti a tanulságot. A holnapi ülés okosabban indul." data-en="Overnight the system aggregates, folding lessons into memory. Tomorrow's session starts smarter.">Éjszaka a rendszer összesíti, a memóriába gyűjti a tanulságot. A holnapi ülés okosabban indul.</p></li>
+    </ol>
+  </div>
+</section>
+
+<!-- ============ ICP ============ -->
+<section class="icp section-pad" id="icp">
+  <div class="wrap icp-grid">
+    <div class="icp-text reveal">
+      <span class="kicker"><span data-hu="Kinek szól" data-en="Who it's for">Kinek szól</span></span>
+      <h2><span data-hu="Alapítók és KKV-vezetők, akik skálázódni akarnak — fejlétszám nélkül." data-en="Founders and SME leaders who want to scale — without headcount.">Alapítók és KKV-vezetők, akik skálázódni akarnak — fejlétszám nélkül.</span></h2>
+      <p class="lead" data-hu="A SWEY AIOS olyan cégeknek készült, ahol a működés még erősen az alapítóhoz kötött, a csapatban sok a tudásmunkás, és a növekedést eddig emberekkel oldották meg. Ha felismerted, hogy a következő szintet nem több emberrel, hanem jobb rendszerrel éred el — itt a helyed." data-en="SWEY AIOS is built for companies where operations are still tightly bound to the founder, the team has many knowledge workers, and growth has so far been solved with more people. If you've realised the next level comes from a better system, not more people — this is for you.">
+        A SWEY AIOS olyan cégeknek készült, ahol a működés még erősen az alapítóhoz kötött, a csapatban sok a tudásmunkás, és a növekedést eddig emberekkel oldották meg. Ha felismerted, hogy a következő szintet nem több emberrel, hanem jobb rendszerrel éred el — itt a helyed.
+      </p>
+      <div class="icp-chips">
+        <span data-hu="10–50 fős csapat" data-en="10–50 person team">10–50 fős csapat</span>
+        <span data-hu="Tudásmunka-nehéz" data-en="Knowledge-work heavy">Tudásmunka-nehéz</span>
+        <span data-hu="Alapító-függő működés" data-en="Founder-dependent operations">Alapító-függő működés</span>
+        <span data-hu="Skálázási szándék" data-en="Intent to scale">Skálázási szándék</span>
+      </div>
+    </div>
+    <div class="icp-card reveal reveal-d2">
+      <div class="icp-qmark"><span class="mark" style="height:36px"><svg viewBox="0 0 80 56"><polygon points="6,50 24,6 36,6 18,50" fill="#085CF0"/><polygon points="36,50 54,6 66,6 48,50" fill="#050A34"/></svg></span></div>
+      <blockquote data-hu="„Heteken belül olyat kaptunk, amit évekig kerestünk: egy rendszert, ami a csapat nélkülem is fut. SWEY nem eszközt adott, hanem képességet."" data-en="Within weeks we got what we'd spent years searching for: a system the team runs without me — SWEY didn't hand us a tool, it handed us a capability.">„Heteken belül olyat kaptunk, amit évekig kerestünk: egy rendszert, ami a csapat nélkülem is fut. SWEY nem eszközt adott, hanem képességet."</blockquote>
+      <div class="icp-attr">
+        <span class="icp-who" data-hu="Budapesti KKV alapító" data-en="Budapest SME founder">Budapesti KKV alapító</span>
+        <span class="icp-stage" data-hu="L2 → L4, 6 hét alatt" data-en="L2 → L4, in 6 weeks">L2 → L4, 6 hét alatt</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ OFFERS ============ -->
+<section class="offers section-pad" id="offers">
+  <div class="wrap">
+    <div class="sec-head reveal" style="margin-inline:auto">
+      <span class="kicker"><span data-hu="Ajánlatok" data-en="Offers">Ajánlatok</span></span>
+      <h2><span data-hu="Egy létra az első lépéstől a teljes átalakulásig." data-en="A ladder, from the first step to full transformation.">Egy létra az első lépéstől a teljes átalakulásig.</span></h2>
+      <p class="lead mute" data-hu="Mindegyik szint mért eredménnyel zárul. Nem előfizetés, hanem egy meghatározott engagement — átadjuk, amit megépítünk." data-en="Every tier ends with measured results. Not a subscription — a defined engagement. We hand over what we build.">
+        Mindegyik szint mért eredménnyel zárul. Nem előfizetés, hanem egy meghatározott engagement — átadjuk, amit megépítünk.
+      </p>
+    </div>
+
+    <div class="offer-grid stagger">
+      <article class="offer" data-cursor>
+        <div class="offer-tag" data-hu="Belépő" data-en="Entry">Belépő</div>
+        <h3 data-hu="Readiness audit" data-en="Readiness audit">Readiness audit</h3>
+        <p data-hu="Felmérjük, hol állsz az öt szinten, és megkapod az első konkrét, mérhető lépéseket. A leggyorsabb módja annak, hogy lásd, mi a lehetséges." data-en="We assess where you sit on the five levels and hand you the first concrete, measurable steps. The fastest way to see what's possible.">Felmérjük, hol állsz az öt szinten, és megkapod az első konkrét, mérhető lépéseket. A leggyorsabb módja annak, hogy lásd, mi a lehetséges.</p>
+        <div class="offer-price"><span class="cur">HUF</span><span class="amt">150–200K</span></div>
+        <ul class="offer-list">
+          <li data-hu="Készség-pontszám és szintmérés" data-en="Readiness Score and level measurement">Készség-pontszám és szintmérés</li>
+          <li data-hu="Folyamat- és kockázattérkép" data-en="Process and risk map">Folyamat- és kockázattérkép</li>
+          <li data-hu="Első lépések, prioritásba rendezve" data-en="First steps, prioritised">Első lépések, prioritásba rendezve</li>
+        </ul>
+        <a href="#contact" class="btn on-dark-ghost sm" data-cursor><span data-hu="Érdekel" data-en="I'm interested">Érdekel</span></a>
+      </article>
+
+      <article class="offer" data-cursor>
+        <div class="offer-tag" data-hu="Sprint · 2 hét" data-en="Sprint · 2 weeks">Sprint · 2 hét</div>
+        <h3 data-hu="Első képesség" data-en="First capability">Első képesség</h3>
+        <p data-hu="Két hét alatt felépítünk és bekötünk egy első, cég-specifikus AI-képességet a valós működésedbe — élő, mérhető eredménnyel." data-en="In two weeks we build and wire a first company-specific AI capability into your real operations — with live, measurable results.">Két hét alatt felépítünk és bekötünk egy első, cég-specifikus AI-képességet a valós működésedbe — élő, mérhető eredménnyel.</p>
+        <div class="offer-price"><span class="cur">HUF</span><span class="amt">400K</span></div>
+        <ul class="offer-list">
+          <li data-hu="Egy bekötött, futó képesség" data-en="One wired, running capability">Egy bekötött, futó képesség</li>
+          <li data-hu="Eval kapuk a minőségre" data-en="Eval gates for quality">Eval kapuk a minőségre</li>
+          <li data-hu="A csapat bevonása és betanítása" data-en="Team involvement and training">A csapat bevonása és betanítása</li>
+        </ul>
+        <a href="#contact" class="btn on-dark-ghost sm" data-cursor><span data-hu="Érdekel" data-en="I'm interested">Érdekel</span></a>
+      </article>
+
+      <article class="offer offer-featured" data-cursor>
+        <div class="offer-flag" data-hu="Legnépszerűbb" data-en="Most chosen">Legnépszerűbb</div>
+        <div class="offer-tag" data-hu="Growth · 6 hét" data-en="Growth · 6 weeks">Growth · 6 hét</div>
+        <h3 data-hu="Operációs rendszer" data-en="Operating system">Operációs rendszer</h3>
+        <p data-hu="Hat hét alatt felépítjük a céged AI-vezérelt operációs rendszerének magját: több bekötött képesség, közös kontextus, mérés és átadás. Ez az a pont, ahol a skálázódás rendszer-kérdéssé válik." data-en="In six weeks we build the core of your AI-driven operating system: multiple wired capabilities, shared context, measurement and handover. This is where scaling becomes a system question.">Hat hét alatt felépítjük a céged AI-vezérelt operációs rendszerének magját: több bekötött képesség, közös kontextus, mérés és átadás. Ez az a pont, ahol a skálázódás rendszer-kérdéssé válik.</p>
+        <div class="offer-price"><span class="cur">HUF</span><span class="amt">1M</span></div>
+        <ul class="offer-list">
+          <li data-hu="Több bekötött képesség + közös kontextus" data-en="Multiple wired capabilities + shared context">Több bekötött képesség + közös kontextus</li>
+          <li data-hu="Réteges memória és mérési réteg" data-en="Tiered memory and eval layer">Réteges memória és mérési réteg</li>
+          <li data-hu="Átadás és önálló futtatás" data-en="Handover and autonomous operation">Átadás és önálló futtatás</li>
+        </ul>
+        <a href="#contact" class="btn sm" data-cursor><span data-hu="Foglalj hívást" data-en="Book a call">Foglalj hívást</span></a>
+      </article>
+
+      <article class="offer" data-cursor>
+        <div class="offer-tag" data-hu="Teljes · 12 hét" data-en="Full · 12 weeks">Teljes · 12 hét</div>
+        <h3 data-hu="Teljes transzformáció" data-en="Full transformation">Teljes transzformáció</h3>
+        <p data-hu="Tizenkét hét alatt az alapító-függő működéstől az önállóan futó rendszerig: teljes részleg-modulok, átadás és a csapat képessé tétele a további skálázásra." data-en="In twelve weeks, from founder-dependent operation to a self-running system: full department modules, handover and enabling the team to keep scaling.">Tizenkét hét alatt az alapító-függő működéstől az önállóan futó rendszerig: teljes részleg-modulok, átadás és a csapat képessé tétele a további skálázásra.</p>
+        <div class="offer-price"><span class="cur">HUF</span><span class="amt">1,5–2M</span></div>
+        <ul class="offer-list">
+          <li data-hu="Teljes részleg-modulok és rendszer" data-en="Full department modules and system">Teljes részleg-modulok és rendszer</li>
+          <li data-hu="Teljes átadás és önállóság" data-en="Full handover and autonomy">Teljes átadás és önállóság</li>
+          <li data-hu="Továbbskálázási képesség a csapatnak" data-en="Continued-scaling capability for the team">Továbbskálázási képesség a csapatnak</li>
+        </ul>
+        <a href="#contact" class="btn on-dark-ghost sm" data-cursor><span data-hu="Érdekel" data-en="I'm interested">Érdekel</span></a>
+      </article>
+    </div>
+    <p class="offers-note mute reveal" data-hu="Az árak tájékoztató jellegűek, az engagement tartalma a felmérés után véglegesül. Minden szinten az a kötelező: mérhető eredmény és átadott rendszer." data-en="Prices are indicative; the engagement is finalised after the assessment. At every tier, one thing is non-negotiable: measured results and a delivered system.">
+      Az árak tájékoztató jellegűek, az engagement tartalma a felmérés után véglegesül. Minden szinten az a kötelező: mérhető eredmény és átadott rendszer.
+    </p>
+  </div>
+</section>
+
+<!-- ============ CTA / CONTACT ============ -->
+<section class="cta section-pad" id="contact">
+  <div class="wrap">
+    <div class="cta-card reveal">
+      <span class="mark cta-bg-slash" aria-hidden="true"><svg viewBox="0 0 80 56"><polygon points="6,50 24,6 36,6 18,50" fill="#085CF0"/><polygon points="36,50 54,6 66,6 48,50" fill="#AFE9FD"/></svg></span>
+      <div class="cta-inner">
+        <span class="kicker on-dark"><span data-hu="Következő lépés" data-en="Next step">Következő lépés</span></span>
+        <h2 class="on-dark"><span data-hu="Mérd fel, hol állsz. 30 perc, és tudni fogod." data-en="Measure where you stand. 30 minutes and you'll know.">Mérd fel, hol állsz. 30 perc, és tudni fogod.</span></h2>
+        <p class="lead on-dark mute" data-hu="Egy rövid hívás során felmérjük a készség-szintedet, és megmondjuk, mi a legmagasabb szint, amit reálisan elérhetsz — és mennyi idő alatt. Nem értékesítési hívás. Egy mérés." data-en="In a short call we assess your readiness and tell you the highest level you can realistically reach — and how long it takes. Not a sales call. A measurement.">
+          Egy rövid hívás során felmérjük a készség-szintedet, és megmondjuk, mi a legmagasabb szint, amit reálisan elérhetsz — és mennyi idő alatt. Nem értékesítési hívás. Egy mérés.
+        </p>
+        <div class="cta-actions">
+          <a href="mailto:hello@swey.hu" class="btn lg" data-cursor>
+            <span data-hu="Foglalj egy hívást" data-en="Book a call">Foglalj egy hívást</span>
+            <svg class="btn-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="square"/></svg>
+          </a>
+          <a href="mailto:hello@swey.hu" class="cta-mail on-dark" data-cursor>hello@swey.hu</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTIONS APPENDED BELOW -->
+
+</main>
+
+<!-- ============ FOOTER ============ -->
+<footer class="footer" id="foot">
+  <svg class="footer-slash mark" viewBox="0 0 80 56" aria-hidden="true">
+    <polygon points="6,50 24,6 36,6 18,50" fill="#085CF0"></polygon>
+    <polygon points="36,50 54,6 66,6 48,50" fill="#AFE9FD"></polygon>
+  </svg>
+  <div class="wrap">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <span class="mark lockup" style="height:26px">
+          <svg viewBox="0 0 300 56" role="img" aria-label="SWEY">
+            <polygon points="6,50 24,6 36,6 18,50" fill="#085CF0"></polygon>
+            <polygon points="36,50 54,6 66,6 48,50" fill="#AFE9FD"></polygon>
+            <text x="86" y="48" font-family="Inter, sans-serif" font-weight="800" font-size="46" letter-spacing="-1.6" fill="#FBFBFD">SWEY</text>
+          </svg>
+        </span>
+        <p data-hu="AI-vezérelt operációs rendszereket építünk és adunk át magyar KKV-knak — hogy belülről skálázódjanak, ne kívülről függjenek." data-en="We build and hand over AI-driven operating systems for Hungarian SMEs — so they scale from within, not depend on the outside.">
+          AI-vezérelt operációs rendszereket építünk és adunk át magyar KKV-knak — hogy belülről skálázódjanak, ne kívülről függjenek.
+        </p>
+      </div>
+      <div>
+        <h3 data-hu="AIOS" data-en="AIOS">AIOS</h3>
+        <ul>
+          <li><a href="#method" data-hu="Módszertan" data-en="Method">Módszertan</a></li>
+          <li><a href="#levels" data-hu="5 szint" data-en="5 Levels">5 szint</a></li>
+          <li><a href="#engine" data-hu="A rendszer" data-en="The system">A rendszer</a></li>
+          <li><a href="#offers" data-hu="Ajánlatok" data-en="Offers">Ajánlatok</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3 data-hu="Cég" data-en="Company">Cég</h3>
+        <ul>
+          <li><a href="#contact" data-hu="Kapcsolat" data-en="Contact">Kapcsolat</a></li>
+          <li><a href="mailto:hello@swey.hu" data-cursor>hello@swey.hu</a></li>
+          <li data-hu="SWEY Innovations Kft. · Budapest" data-en="SWEY Innovations Kft. · Budapest">SWEY Innovations Kft. · Budapest</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© <span id="year">2026</span> SWEY Innovations Kft.</span>
+      <span data-hu="Építve Inter-rel · Egy kék · Egy jel." data-en="Built with Inter · One blue · One mark.">Építve Inter-rel · Egy kék · Egy jel.</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ============================================================
+   SWEY AIOS — interactions
+   ============================================================ */
+(function(){
+  const doc=document, root=doc.documentElement, body=doc.body;
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const coarse = matchMedia('(pointer: coarse)').matches;
+  if(reduce) root.classList.add('no-anim');
+
+  /* ---- language switcher (HU default) ---- */
+  const lang = doc.getElementById('lang');
+  function setLang(l){
+    lang.dataset.lang=l;
+    lang.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed', b.dataset.set===l?'true':'false'));
+    doc.documentElement.lang=l;
+    body.querySelectorAll('[data-hu],[data-en]').forEach(el=>{
+      const v = el.dataset[l];
+      if(v){
+        if(el.tagName==='INPUT'||el.tagName==='TEXTAREA') el.setAttribute('placeholder', v);
+        else el.textContent = v;
+      }
+    });
+    try{localStorage.setItem('swey-lang', l);}catch(e){}
+  }
+  lang.addEventListener('click', e=>{const b=e.target.closest('button[data-set]'); if(b) setLang(b.dataset.set);});
+  let stored='en'; try{stored=localStorage.getItem('swey-lang')||'en';}catch(e){}
+  setLang(stored);
+
+  /* ---- nav scroll state ---- */
+  const nav=doc.getElementById('nav');
+  const onScroll=()=>nav.classList.toggle('scrolled', scrollY>20);
+  onScroll(); addEventListener('scroll', onScroll, {passive:true});
+
+  /* ---- mobile menu ---- */
+  const burger=doc.getElementById('burger'), mm=doc.getElementById('mobileMenu');
+  const setMenu=open=>{body.classList.toggle('menu-open',open);body.classList.toggle('locked',open);burger.setAttribute('aria-expanded',open);}
+  burger.addEventListener('click',()=>setMenu(!body.classList.contains('menu-open')));
+  mm.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>setMenu(false)));
+
+  /* ---- reveal on scroll ---- */
+  const io=new IntersectionObserver((ents)=>{
+    ents.forEach(en=>{if(en.isIntersecting){en.target.classList.add('in');io.unobserve(en.target);}});
+  },{threshold:.14, rootMargin:'0px 0px -8% 0px'});
+  doc.querySelectorAll('.reveal,.stagger').forEach(el=>io.observe(el));
+
+  /* ---- counters ---- */
+  function animateCount(el){
+    const to=+el.dataset.to, suf=el.dataset.suffix;
+    if(to===0){return;}
+    if(reduce){el.textContent=to;return;}
+    const dur=1400, start=performance.now();
+    const step=t=>{const p=Math.min(1,(t-start)/dur);const v=Math.round(p*to);el.textContent=v;if(p<1)requestAnimationFrame(step);};
+    requestAnimationFrame(step);
+  }
+  const cio=new IntersectionObserver((ents)=>{ents.forEach(en=>{if(en.isIntersecting){animateCount(en.target);cio.unobserve(en.target);}});},{threshold:.6});
+  doc.querySelectorAll('.counter').forEach(el=>cio.observe(el));
+
+  /* ---- custom cursor ---- */
+  if(!coarse){
+    const dot=doc.getElementById('cursorDot'), ring=doc.getElementById('cursorRing');
+    let mx=innerWidth/2,my=innerHeight/2,rx=mx,ry=my;
+    addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;dot.style.transform=`translate(${mx}px,${my}px) translate(-50%,-50%)`;});
+    const tick=()=>{rx+=(mx-rx)*.18;ry+=(my-ry)*.18;ring.style.transform=`translate(${rx}px,${ry}px) translate(-50%,-50%)`;requestAnimationFrame(tick);};
+    tick();
+    const hoverSel='a, button, [data-cursor], .btn';
+    doc.addEventListener('mouseover',e=>{if(e.target.closest(hoverSel))ring.classList.add('hover');});
+    doc.addEventListener('mouseout',e=>{if(e.target.closest(hoverSel))ring.classList.remove('hover');});
+  }
+
+  /* ---- year ---- */
+  doc.getElementById('year').textContent=new Date().getFullYear();
+
+  /* ---- 5 Levels interactive climber ---- */
+  const LEVELS = {
+    hu:[
+      {t:'Alapító-függő működés',d:'Minden a te fejedben van. A folyamatok nincsenek leírva, a döntések nálad futnak át, a tudás a csapat helyett benned lakik. A céged addig működik, amíg te is.',see:'Egyetlen ember a szűk keresztmetszet',gain:'A tudás kikerül a fejedből a rendszerbe'},
+      {t:'Dokumentált működés',d:'A kulcsfolyamatok le vannak írva és láthatók. A csapat tudja, mi a dolga — de még emberek csinálják kézzel, lassan és következetlenül.',see:'Ismétlődő, de megbízható működés',gain:'Egyértelmű, mérhető alapot kap a rendszer'},
+      {t:'Asszisztált működés',d:'Az AI aktívan segít a napi munkában — piszkozatokat ír, összesít, javasol. De az utolsó szó és a felelősség a csapaté.',see:'AI mint kolléga minden asztalnál',gain:'Egy kettő-háromszoros gyorsulás a rutinmunkában'},
+      {t:'Részben autonóm működés',d:'A jól meghatározott munkafolyamatokat AI-ügynökök futtatják, kapuk (eval) ellenőrzik őket, az emberek a kivételeknél és a stratégiánál lépnek be.',see:'Ügynökök dolgoznak, emberek felügyelnek',gain:'A skálázódás feladattá, nem fejlétszámmá válik'},
+      {t:'Autonóm működés',d:'A rendszer önállóan fut, mér és tanul. A csapat a fejlesztést és az irányt tartja, nem a napi tűzoltást. Te a célt választod — a gépezet elvihet oda.',see:'Egy önfenntartó, tanuló szervezet',gain:'Belülről skálázódó cég, külső függőség nélkül'}
+    ],
+    en:[
+      {t:'Founder-dependent',d:'Everything lives in your head. Processes aren’t written down, decisions run through you, knowledge lives in you rather than the team. The company works only as long as you do.',see:'A single person as the bottleneck',gain:'Knowledge moves out of your head and into the system'},
+      {t:'Documented',d:'Key processes are written down and visible. The team knows what to do — but people still do it by hand, slowly and inconsistently.',see:'Repetitive but reliable operations',gain:'A clear, measurable foundation for the system'},
+      {t:'Assisted',d:'AI actively helps with daily work — drafts, summarises, suggests. But the final word and the responsibility stay with the team.',see:'AI as a colleague at every desk',gain:'A two-to-threefold speedup on routine work'},
+      {t:'Semi-autonomous',d:'Well-defined workflows are run by AI agents, gated by eval checks; people step in for exceptions and strategy.',see:'Agents work, people supervise',gain:'Scaling becomes a task, not headcount'},
+      {t:'Autonomous',d:'The system runs, measures and learns on its own. The team holds development and direction, not daily firefighting. You pick the goal — the machine can get you there.',see:'A self-sustaining, learning organisation',gain:'A company that scales from within, without outside dependency'}
+    ]
+  };
+  const lvls = [...doc.querySelectorAll('.lvl')];
+  const climbProg = doc.getElementById('climbProgress');
+  const ldTitle = doc.getElementById('ldTitle'), ldDesc = doc.getElementById('ldDesc');
+  const ldNum = doc.querySelector('.ld-num'), ldSee = doc.querySelector('#ldMeta .ld-stat:first-child .ld-v'), ldGain = doc.querySelector('#ldMeta .ld-stat:last-child .ld-v');
+  const ldSeeK = doc.querySelector('#ldMeta .ld-stat:first-child .ld-k'), ldGainK = doc.querySelector('#ldMeta .ld-stat:last-child .ld-k');
+  function pickLevel(n){
+    const lang = lang2();
+    const L = LEVELS[lang][n-1];
+    lvls.forEach(l=>l.classList.toggle('is-active', +l.dataset.lvl===n));
+    ldTitle.textContent=L.t; ldDesc.textContent=L.d;
+    ldNum.textContent=String(n).padStart(2,'0');
+    ldSee.textContent=L.see; ldGain.textContent=L.gain;
+    climbProg.style.width = ((n-1)/4*100)+'%';
+    const d=doc.getElementById('levelDetail'); d.style.opacity=0; d.style.transform='translateY(8px)';
+    requestAnimationFrame(()=>{d.style.transition='opacity .4s var(--ease),transform .4s var(--ease)';d.style.opacity=1;d.style.transform='none';});
+  }
+  function lang2(){ return lang.dataset.lang || 'hu'; }
+  lvls.forEach(l=>l.addEventListener('click',()=>pickLevel(+l.dataset.lvl)));
+  // auto-advance demo when in view
+  let autoTimer=null, autoN=1;
+  const lio=new IntersectionObserver((ents)=>{
+    ents.forEach(en=>{
+      if(en.isIntersecting){
+        if(!autoTimer){
+          autoTimer=setInterval(()=>{autoN=autoN%5+1;pickLevel(autoN);},2600);}
+      }else{ if(autoTimer){clearInterval(autoTimer);autoTimer=null;} }
+    });
+  },{threshold:.4});
+  const levelsSec=doc.getElementById('levels'); if(levelsSec) lio.observe(levelsSec);
+  pickLevel(1);
+  // keep level detail in sync with language
+  lang.addEventListener('click', e=>{
+    const b=e.target.closest('button[data-set]'); if(!b) return;
+    setTimeout(()=>{ const active=doc.querySelector('.lvl.is-active'); if(active) pickLevel(+active.dataset.lvl); },0);
+  });
+
+  /* ---- hero canvas: floating slash motif ---- */
+  (function(){
+    if(reduce) return;
+    const cvs=doc.getElementById('heroCanvas'); if(!cvs) return;
+    const ctx=cvs.getContext('2d'); let w,h,dpr;
+    function size(){dpr=Math.min(devicePixelRatio||1,2);w=cvs.width=innerWidth*dpr;h=cvs.height=cvs.parentElement.offsetHeight*dpr;cvs.style.width=innerWidth+'px';cvs.style.height=cvs.parentElement.offsetHeight+'px';}
+    size(); addEventListener('resize',size);
+    const N=14;
+    const slashes=Array.from({length:N},()=>({
+      x:Math.random(),y:Math.random(),
+      s:(.5+Math.random()*1.4),
+      rot:-22*(Math.PI/180),
+      vx:(Math.random()-.5)*.00012, vy:(Math.random()-.5)*.00012,
+      o:.04+Math.random()*.10, blue:Math.random()>.6
+    }));
+    let cx=0,cy=0,tx=0,ty=0;
+    addEventListener('mousemove',e=>{tx=(e.clientX/innerWidth-.5);ty=(e.clientY/innerHeight-.5);});
+    function drawSlash(x,y,scale,rot,opacity,blue){
+      // the two-slash mark, scaled
+      const u=44*scale*dpr;
+      ctx.save();ctx.translate(x,y);ctx.rotate(rot);
+      ctx.globalAlpha=opacity;
+      const draw=(poly,fill)=>{ctx.beginPath();poly.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.closePath();ctx.fillStyle=fill;ctx.fill();};
+      const L=[[-u*.8,u],[0,-u],[.4*u,-u],[-.4*u,u]];
+      const R=[[0,u],[.8*u,-u],[1.2*u,-u],[.4*u,u]];
+      draw(L, blue?'rgba(8,92,240,1)':'rgba(5,10,52,1)');
+      draw(R, 'rgba(5,10,52,1)');
+      ctx.restore();
+    }
+    function frame(){
+      cx+=(tx-cx)*.05; cy+=(ty-cy)*.05;
+      ctx.clearRect(0,0,w,h);
+      slashes.forEach(s=>{
+        s.x+=s.vx; s.y+=s.vy;
+        if(s.x<-.2)s.x=1.2; if(s.x>1.2)s.x=-.2; if(s.y<-.2)s.y=1.2; if(s.y>1.2)s.y=-.2;
+        const px=(s.x*0.7+0.18 + cx*0.04*(s.s))*w;
+        const py=(s.y*0.7+0.10 + cy*0.04*(s.s))*h;
+        drawSlash(px,py,s.s,s.rot,s.o,s.blue);
+      });
+      requestAnimationFrame(frame);
+    }
+    frame();
+  })();
+})();
+</script>
+</body>
+</html>
