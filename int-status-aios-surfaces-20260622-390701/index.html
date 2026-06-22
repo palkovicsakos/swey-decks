@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AIOS — Surface-by-surface build walkthrough · SWEY</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ── THEME: SWEY ─────────────────────────────────────────────────────────── */
+:root{
+  --ink:#050A34; --deep:#092676; --signal:#085CF0; --air:#AFE9FD;
+  --paper:#F4F5FA; --paper-2:#ECEEF6; --bone:#FBFBFD;
+  --line:#D9DCE6; --line-2:#1A2350; --mute:#6F7591;
+  --accent:var(--signal); --accent-on-dark:var(--air); --mute-on-dark:#9AA2CC;
+  --lead-on-dark:#AAB1D6; --on-dark-soft:#D6DBF2; --lead-on-signal:#0A1240;
+  --r-btn:10px; --r-card:14px; --r-card-lg:16px; --r-hero:18px; --r-pill:999px;
+  --shadow:rgba(5,10,52,.06); --shadow-lg:rgba(5,10,52,.07);
+  --shadow-card:0 1px 2px rgba(5,10,52,.06); --shadow-card-lg:0 2px 6px rgba(5,10,52,.07);
+  --shadow-hero:0 30px 60px -30px rgba(5,10,52,.25), 0 4px 12px -6px rgba(5,10,52,.15);
+  --mark-back:#AFE9FD; --mark-front:#085CF0;
+  --display:'Inter',system-ui,sans-serif; --body:'Inter',system-ui,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--body);color:var(--ink);background:var(--bone);-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-family:var(--display);letter-spacing:-.02em;line-height:1.05}
+.deck{scroll-snap-type:y mandatory;height:100vh;overflow-y:scroll}
+.slide{scroll-snap-align:start;min-height:100vh;width:100%;display:flex;flex-direction:column;justify-content:center;padding:6vh 7vw;position:relative}
+.slide-inner{max-width:1180px;margin:0 auto;width:100%;position:relative;z-index:1}
+.s-paper{background:var(--paper)} .s-paper-2{background:var(--paper-2)} .s-bone{background:var(--bone)}
+.s-ink{background:var(--ink);color:var(--paper)} .s-signal{background:var(--signal);color:var(--paper)} .s-air{background:var(--air);color:var(--ink)}
+.kicker{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.16em;color:var(--accent);margin-bottom:1.1rem}
+.s-ink .kicker{color:var(--accent-on-dark)} .s-signal .kicker{color:var(--ink)} .s-air .kicker{color:var(--deep)}
+.h-hero{font-size:clamp(2.6rem,7vw,5.6rem);font-weight:900;letter-spacing:-.035em}
+.h-title{font-size:clamp(1.9rem,4.4vw,3.2rem);font-weight:800}
+.lead{font-size:clamp(1.05rem,1.7vw,1.4rem);font-weight:400;color:var(--mute);max-width:54ch;line-height:1.5;margin-top:1.4rem}
+.s-ink .lead{color:var(--lead-on-dark)} .s-signal .lead{color:var(--lead-on-signal);opacity:.92}
+.accent{color:var(--accent)} .s-ink .accent{color:var(--accent-on-dark)} .s-signal .accent{color:var(--ink)}
+.mark{display:inline-block;line-height:0} .mark svg{display:block}
+.stat-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r-card-lg);overflow:hidden;margin-top:2.2rem}
+.s-ink .stat-grid{background:var(--line-2);border-color:var(--line-2)}
+.stat{background:var(--paper);padding:1.6rem 1.3rem} .s-ink .stat{background:var(--ink)}
+.stat .num{font-family:var(--display);font-size:clamp(1.5rem,2.6vw,2.2rem);font-weight:900;letter-spacing:-.04em;line-height:1}
+.stat .unit{color:var(--accent)} .s-ink .stat .unit{color:var(--accent-on-dark)}
+.stat .lbl{margin-top:.55rem;font-size:.78rem;font-weight:600;color:var(--mute);line-height:1.3}
+.s-ink .stat .lbl{color:var(--mute-on-dark)}
+.b-list{list-style:none;margin-top:2rem;display:flex;flex-direction:column;gap:.9rem}
+.b-list li{display:flex;gap:1.3rem;align-items:baseline;padding-bottom:.9rem;border-bottom:1px solid var(--line)}
+.b-list li:last-child{border-bottom:0}
+.b-list .bn{font-family:var(--display);font-weight:900;font-size:1.05rem;color:var(--accent);letter-spacing:-.02em;min-width:2.2ch}
+.b-list .bt{font-size:1.05rem;line-height:1.45;color:var(--ink)} .b-list .bt b{font-weight:700}
+.s-ink .b-list li{border-color:var(--line-2)} .s-ink .b-list .bt{color:var(--paper)} .s-ink .b-list .bn{color:var(--accent-on-dark)}
+.flow{display:flex;align-items:stretch;gap:0;margin-top:2rem;flex-wrap:wrap}
+.flow-step{flex:1;min-width:150px;background:var(--paper);border-radius:var(--r-card);padding:1.2rem 1.1rem;box-shadow:var(--shadow-card);position:relative}
+.s-bone .flow-step{background:var(--paper)}
+.flow-arrow{display:flex;align-items:center;padding:0 .5rem;color:var(--accent);font-weight:800;font-size:1.3rem}
+.flow-step .sn{font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+.flow-step .st{font-family:var(--display);font-weight:800;font-size:1.05rem;margin-top:.4rem}
+.flow-step .sd{font-size:.78rem;color:var(--mute);margin-top:.35rem;line-height:1.4}
+.cta-row{display:flex;align-items:center;gap:1.4rem;margin-top:2.2rem;flex-wrap:wrap}
+.cta{display:inline-block;background:var(--signal);color:var(--paper);font-weight:700;font-size:1rem;letter-spacing:-.01em;padding:.95rem 1.8rem;border-radius:var(--r-btn);text-decoration:none}
+.s-ink .cta-alt,.cta-alt{font-size:.9rem;color:var(--mute-on-dark)}
+.edge-mark{position:absolute;right:-2vw;bottom:-4vh;opacity:.06;z-index:0;pointer-events:none}
+.edge-mark svg{width:46vw;height:auto} .s-signal .edge-mark{opacity:.12}
+.counter{position:fixed;bottom:26px;right:30px;z-index:50;font-family:var(--display);font-weight:700;font-size:.82rem;letter-spacing:.04em;color:var(--mute);background:rgba(244,245,250,.85);padding:.4rem .8rem;border-radius:999px;border:1px solid var(--line)}
+.counter b{color:var(--accent)}
+.progress{position:fixed;top:0;left:0;height:3px;background:var(--accent);z-index:50;width:0;transition:width .25s ease}
+.hint{position:fixed;bottom:26px;left:30px;z-index:50;font-size:.74rem;font-weight:600;letter-spacing:.04em;color:var(--mute)}
+.hint span{color:var(--accent);font-weight:700}
+
+/* ── CUSTOM — surface walkthrough (ASCII UI draft = a wireframe DIAGRAM block) ── */
+.sd-head{display:flex;align-items:baseline;gap:1rem;flex-wrap:wrap}
+.sd-layer{font-size:.72rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);background:var(--paper-2);border:1px solid var(--line);border-radius:var(--r-pill);padding:.28rem .8rem}
+.sd-tag{font-size:.66rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--paper);background:var(--accent);padding:.26rem .65rem;border-radius:var(--r-pill)}
+.sd-tag.promote{background:var(--deep)} .sd-tag.build{background:var(--mute)}
+.sd-wrap{display:grid;grid-template-columns:1.35fr .9fr;gap:2rem;align-items:center;margin-top:1.6rem}
+.ui-draft{background:var(--ink);border-radius:var(--r-card-lg);padding:1.3rem 1.5rem;overflow-x:auto;box-shadow:var(--shadow-hero)}
+.ui-draft pre{font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:.72rem;line-height:1.34;color:#D6DBF2;white-space:pre;margin:0}
+.ui-draft pre b{color:var(--air);font-weight:600}
+.sd-desc .d{font-size:1rem;color:var(--ink);line-height:1.55}
+.sd-desc .k{margin-top:1.2rem;font-size:.82rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}
+.sd-desc ul{list-style:none;margin-top:.6rem;display:flex;flex-direction:column;gap:.5rem}
+.sd-desc li{font-size:.9rem;color:var(--mute);line-height:1.4;padding-left:1.1rem;position:relative}
+.sd-desc li::before{content:"";position:absolute;left:0;top:.5em;width:6px;height:6px;border-radius:50%;background:var(--accent)}
+@media (max-width:920px){.stat-grid{grid-template-columns:repeat(2,1fr)}.sd-wrap{grid-template-columns:1fr}.flow{flex-direction:column}.flow-arrow{transform:rotate(90deg)}}
+@page{size:A4 landscape;margin:0}
+@media print{html,body{height:auto;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}.deck{height:auto;overflow:visible;scroll-snap-type:none;display:block}.slide{min-height:auto;height:100vh;page-break-after:always;break-after:page;page-break-inside:avoid;display:flex}.slide:last-child{break-after:auto}.counter,.progress,.hint{display:none!important}.h-hero{font-size:3.4rem}}
+</style>
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<div class="counter"><b id="cur">01</b> / <span id="tot">01</span></div>
+<div class="hint">scroll or <span>↑ ↓ → ←</span> to navigate</div>
+
+<main class="deck" id="deck">
+
+  <!-- 1 · TITLE -->
+  <section class="slide s-ink" data-pattern="title">
+    <div class="edge-mark"><svg viewBox="0 0 80 56" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><polygon points="6,50 24,6 36,6 18,50" fill="var(--mark-front)"/><polygon points="36,50 54,6 66,6 48,50" fill="var(--mark-front)"/></svg></div>
+    <div class="slide-inner">
+      <div class="mark" style="margin-bottom:2.2rem"><svg width="84" height="59" viewBox="0 0 80 56" xmlns="http://www.w3.org/2000/svg" aria-label="brand mark"><polygon points="6,50 24,6 36,6 18,50" fill="var(--mark-back)"/><polygon points="36,50 54,6 66,6 48,50" fill="var(--mark-front)"/></svg></div>
+      <div class="kicker">Build review · 2026-06-22 · before-the-build gate</div>
+      <h1 class="h-hero">AIOS — surface-by-surface<br><span class="accent">build walkthrough</span></h1>
+      <p class="lead">Every surface I'm about to build autonomously, as an ASCII wireframe + what it does. Review fast, flag anything, then the loop builds it</p>
+    </div>
+  </section>
+
+  <!-- 2 · THE PLAN -->
+  <section class="slide s-paper" data-pattern="numbers">
+    <div class="slide-inner">
+      <div class="kicker">The build plan — locked tonight</div>
+      <h2 class="h-title">What the loop will do while you're <span class="accent">off the keyboard</span></h2>
+      <div class="stat-grid">
+        <div class="stat"><div class="num">Auto<span class="unit">·</span></div><div class="lbl">Autopilot if tests pass — escalate only on failure or a real decision</div></div>
+        <div class="stat"><div class="num">All<span class="unit">+</span></div><div class="lbl">Scope: every promote + the build-new surfaces (waves 2 &amp; 3)</div></div>
+        <div class="stat"><div class="num">1<span class="unit">st</span></div><div class="lbl">Operations first — the task spine you run Monday ops on</div></div>
+        <div class="stat"><div class="num">Claude<span class="unit">→</span></div><div class="lbl">Compute now; GLM 5.2 swaps in when you drop the key</div></div>
+        <div class="stat"><div class="num">2<span class="unit">×</span></div><div class="lbl">Test gate: Playwright QA + the code-review gate, per surface</div></div>
+      </div>
+      <p class="lead">UI = vanilla HTML + the shadcn "New York" look (no React) · SWEY brand · ASCII → verify → build · the v2.5 Home is the locked flagship the kit comes from</p>
+    </div>
+  </section>
+
+  <!-- 3 · BUILD ORDER -->
+  <section class="slide s-ink" data-pattern="process">
+    <div class="slide-inner">
+      <div class="kicker">The locked build order</div>
+      <h2 class="h-title">Finish Home → lock the kit → <span class="accent">auto-build the rest</span></h2>
+      <div class="flow">
+        <div class="flow-step"><div class="sn">Wave 0</div><div class="st">Kit</div><div class="sd">Extract the design-system kit from v2.5 Home — tokens, components, shell + left-nav. No input needed.</div></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step"><div class="sn">Wave 2</div><div class="st">8 promotes</div><div class="sd">Re-skin existing dashboards to the kit. Operations → Floor → Performance → Control Tower → CRM → Finance → Cockpit → Automation Hub.</div></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step"><div class="sn">Wave 3</div><div class="st">5 build-new</div><div class="sd">Build-Out · Jarvis · Inbox · Library · Guide. Net-new — loop attempts, escalates more readily.</div></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step"><div class="sn">Wave 4</div><div class="st">Control plane</div><div class="sd">Settings + 6 system dashboards. Deferred — unlocks autopilot fully.</div></div>
+      </div>
+      <p class="lead">Promote running code before building new. Each surface ships only when it passes the test + review gate; failures get parked with a reason, never shipped broken</p>
+    </div>
+  </section>
+
+  <!-- ===== SURFACE SLIDES ===== -->
+
+  <!-- HOME -->
+  <section class="slide s-bone" data-pattern="surface">
+    <div class="slide-inner">
+      <div class="sd-head"><h2 class="h-title">Home</h2><span class="sd-layer">Home</span><span class="sd-tag build">built · live</span></div>
+      <div class="sd-wrap">
+        <div class="ui-draft"><pre>┌──┬─────────────────────────────────────────────┐
+│<b>//</b>│ Home          Good evening, Ákos    AP  ≡ │
+├──┼─────────────────────────────────────────────┤
+│<b>▣</b> │ ┏━ TODAY'S ONE THING ━━━━━━━━━━━━━━━━━━━━┓ │
+│▢ │ ┃ <b>Hold 3 sales calls</b> → close/cash    ┃ │
+│▢ │ ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛ │
+│▢ │ ┌ NEEDS YOU · 2 ┐ ┌ LIVE AGENTS ┐ ┌DIGEST┐ │
+│▢ │ │ • Approve copy│ │ Atlas    ⟳ │ │ 4 new│ │
+│▢ │ │ • Invite Kitti│ │ Darius   ✓ │ │ items│ │
+│▢ │ └───────────────┘ └────────────┘ └──────┘ │
+│▢ │ ┌Streak 6d┐ ┌Calls 2┐ ┌Cash <b>5.0M</b>┐      │
+│≡ │ └─────────┘ └───────┘ └──────────┘        │
+└──┴─────────────────────────────────────────────┘</pre></div>
+        <div class="sd-desc">
+          <p class="d">The operation at a glance — the page Ákos lives on (2nd screen, always-on).</p>
+          <div class="k">Key elements</div>
+          <ul><li>Today's ONE thing — hero'd</li><li>Needs-you queue · live agents · digest</li><li>One-line KPI strip: streak · calls · cash</li></ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- JARVIS -->
+  <section class="slide s-bone" data-pattern="surface">
+    <div class="slide-inner">
+      <div class="sd-head"><h2 class="h-title">Jarvis</h2><span class="sd-layer">Home</span><span class="sd-tag build">build new</span></div>
+      <div class="sd-wrap">
+        <div class="ui-draft"><pre>┌──┬─────────────────────────────────────────────┐
+│<b>//</b>│ Jarvis            omni-channel front door   │
+├──┼─────────────────────────────────────────────┤
+│▢ │  ┌─────────────────────────────────────────┐ │
+│<b>▣</b> │  │ Jarvis › drafted the Kitti email        │ │
+│▢ │  │ ┌ DRAFT ──────────────────────┐ [Send]  │ │
+│▢ │  │ │ Szia Kitti, …                │ [Edit]  │ │
+│▢ │  │ └──────────────────────────────┘ [Spike] │ │
+│▢ │  │ You › book the call for Thursday        │ │
+│▢ │  └─────────────────────────────────────────┘ │
+│▢ │  ┌───────────────────────────────────────┐   │
+│▢ │  │ &gt; talk · command · delegate…    [↵]  │   │
+│≡ │  └───────────────────────────────────────┘   │
+│  │  app · terminal · Slack · Telegram · email   │
+└──┴─────────────────────────────────────────────┘</pre></div>
+        <div class="sd-desc">
+          <p class="d">Conversational front door — talk, command, delegate, review drafts. Same Jarvis across every channel.</p>
+          <div class="k">Key elements</div>
+          <ul><li>Chat thread with inline draft-review (send / edit)</li><li>Command bar → routes to the Inbox</li><li>Omni-channel: app · terminal · Slack · Telegram · email</li></ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- COCKPIT -->
+  <section class="slide s-bone" data-pattern="surface">
+    <div class="slide-inner">
+      <div class="sd-head"><h2 class="h-title">Cockpit</h2><span class="sd-layer">Company · run</span><span class="sd-tag promote">promote</span></div>
+      <div class="sd-wrap">
+        <div class="ui-draft"><pre>┌──┬─────────────────────────────────────────────┐
+│<b>//</b>│ Cockpit      org · humans + agents · status │
+├──┼─────────────────────────────────────────────┤
+│▢ │        ┌─────────┐                           │
+│▢ │        │  Ákos   │  CEO                       │
+│<b>▣</b> │        └────┬────┘                           │
+│▢ │     ┌───────┼────────┬─────────┐             │
+│▢ │  ┌──┴──┐ ┌──┴──┐ ┌───┴──┐ ┌────┴─┐           │
+│▢ │  │Jarvis│ │Atlas│ │Darius│ │Kitti │          │
+│▢ │  │  ✓  │ │  ⟳ │ │  ✓  │ │  ●  │           │
+│▢ │  └─────┘ └─────┘ └──────┘ └──────┘           │
+│▢ │  [ Org ] [ Agents ] [ Status ] [ Config ]    │
+└──┴─────────────────────────────────────────────┘</pre></div>
+        <div class="sd-desc">
+          <p class="d">RUN the company — org chart of humans + agents, live status, and a 4th Agent-Config view.</p>
+          <div class="k">Promote from</div>
+          <ul><li><code>company-org-chart.html</code> + Agent-Config view</li><li>Live agent status (Atlas / Darius / Jarvis)</li></ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BUILD-OUT -->
+  <section class="slide s-bone" data-pattern="surface">
+    <div class="slide-inner">
+      <div class="sd-head"><h2 class="h-title">Build-Out</h2><span class="sd-layer">Company · build</span><span class="sd-tag build">built · deploy</span></div>
+      <div class="sd-wrap">
+        <div class="ui-draft"><pre>┌──┬─────────────────────────────────────────────┐
+│<b>//</b>│ Build-Out     building the AIOS · roadmap   │
+├──┼─────────────────────────────────────────────┤
+│▢ │ Goal: Build the AIOS         ████████░░ 78%  │
+│▢ │ ┌L1┐┌L2┐┌L3┐┌L4┐┌<b>L5</b>┐  per-layer tabs       │
+│<b>▣</b> │ └──┘└──┘└──┘└──┘└──┘                        │
+│▢ │ ┌ WAVE 2 · promotes ──────────────┐          │
+│▢ │ │ ▣ Operations      built   ✓     │          │
+│▢ │ │ ⟳ Floor           building       │          │
+│▢ │ │ ▢ CRM             queued         │          │
+│▢ │ └─────────────────────────────────┘          │
+│▢ │ feedback → autobuild loop (Copy-Lab pattern) │
+└──┴─────────────────────────────────────────────┘</pre></div>
+        <div class="sd-desc">
+          <p class="d">BUILD the AIOS — the L1–L5 build tracker + roadmap/PM, with the feedback→autobuild loop.</p>
+          <div class="k">Key elements</div>
+          <ul><li>Goal progress + per-layer tabs (context · status · next)</li><li>Tasks sync with Operations (the spine owns them)</li><li>Already built — needs deploy to <code>/buildout</code></li></ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LIBRARY -->
+  <section class="slide s-bone" data-pattern="surface">
+    <div class="slide-inner">
+      <div class="sd-head"><h2 class="h-title">Library</h2><span class="sd-layer">Company · govern</span><span class="sd-tag build">build new</span></div>
+      <div class="sd-wrap">
+        <div class="ui-draft"><pre>┌──┬─────────────────────────────────────────────┐
+│<b>//</b>│ Library     capability lifecycle · govern   │
+├──┼─────────────────────────────────────────────┤
+│▢ │ ┌Drafted┐┌Tested┐┌Verified┐┌<b>Live</b>┐          │
+│▢ │ │  4   →││  3  →││   2   →││ 14 │          │
+│<b>▣</b> │ └───────┘└──────┘└────────┘└────┘          │
+│▢ │ ┌─────────────────────────────────────────┐ │
+│▢ │ │ copywriter      LIVE     ★ 8.7  · log   │ │
+│▢ │ │ aios-build      TESTED   ⟳ optimize     │ │
+│▢ │ │ autolead        DRAFTED  · promote?     │ │
+│▢ │ └─────────────────────────────────────────┘ │
+│▢ │ [ Optimizer ]   [ Feedback log ]            │
+└──┴─────────────────────────────────────────────┘</pre></div>
+        <div class="sd-desc">
+          <p class="d">GOVERN capabilities — the skill/agent lifecycle DRAFTED → TESTED → VERIFIED → LIVE, with scores + feedback.</p>
+          <div class="k">Key elements</div>
+          <ul><li>Lifecycle pipeline (counts per stage)</li><li>Per-capability score + optimizer + feedback log</li></ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- INBOX -->
+  <section class="slide s-bone" data-pattern="surface">
+    <div class="slide-inner">
+      <div class="sd-head"><h2 class="h-title">Inbox</h2><span class="sd-layer">Execute</span><span class="sd-tag build">build new</span></div>
+      <div class="sd-wrap">
+        <div class="ui-draft"><pre>┌──┬─────────────────────────────────────────────┐
+│<b>//</b>│ Inbox    universal intake + Darius triage   │
+├──┼─────────────────────────────────────────────┤
+│▢ │ ┌ QUEUE · 7 ──────────────┐ ┌ RULES ──────┐ │
+│<b>▣</b> │ │ ▢ Voice note · 0:42     │ │ if "call"   │ │
+│▢ │ │ ▢ Email › Sió follow-up │ │  → Operations│ │
+│▢ │ │ ▢ Idea: GLM lane        │ │ if idea     │ │
+│▢ │ │ ▢ Slack › Kitti Q       │ │  → Someday  │ │
+│▢ │ └─────────────────────────┘ └─────────────┘ │
+│▢ │  Darius processes → routes to the spine      │
+│▢ │  [ Process all ]  [ + Capture ]              │
+└──┴─────────────────────────────────────────────┘</pre></div>
+        <div class="sd-desc">
+          <p class="d">The universal intake queue — ALL inputs land here, Darius triages by rules and routes to Operations.</p>
+          <div class="k">Key elements</div>
+          <ul><li>One queue for every channel + capture</li><li>Darius's processing view (triage rules → route)</li></ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- OPERATIONS -->
+  <section class="slide s-bone" data-pattern="surface">
+    <div class="slide-inner">
+      <div class="sd-head"><h2 class="h-title">Operations <span class="accent">· first</span></h2><span class="sd-layer">Execute</span><span class="sd-tag promote">promote</span></div>
+      <div class="sd-wrap">
+        <div class="ui-draft"><pre>┌──┬─────────────────────────────────────────────┐
+│<b>//</b>│ Operations    the spine · goals›projects›tasks│
+├──┼─────────────────────────────────────────────┤
+│▢ │ ┌Inbox 6┐┌Today 4┐┌Doing 3┐┌<b>Done 12</b>┐       │
+│<b>▣</b> │ ├───────┴────────┴───────┴──────────┤      │
+│▢ │ │ ▣ Fix os.swey.hu login   P1 Agent ✓│      │
+│▢ │ │ ▢ Kitti onboarding       P1 Ákos   │      │
+│▢ │ │ ⟳ Build Operations page  P2 Agent  │      │
+│▢ │ │ ▢ Wire GLM 5.2 lane      P2 Ákos   │      │
+│▢ │ └────────────────────────────────────┘      │
+│▢ │  [ + Capture ] [ Board ▦ ] [ Filter ▾ ]     │
+└──┴─────────────────────────────────────────────┘</pre></div>
+        <div class="sd-desc">
+          <p class="d">THE SPINE — goals → projects → tasks. The source of truth you and Kitti run Monday ops on. Built first.</p>
+          <div class="k">Key elements</div>
+          <ul><li>List + board (drag-and-drop) views</li><li>Backed by the live Supabase <code>ops</code> spine</li><li>Capture · priority · owner · agent-vs-Ákos</li></ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- AUTOMATION HUB -->
+  <section class="slide s-bone" data-pattern="surface">
+    <div class="slide-inner">
+      <div class="sd-head"><h2 class="h-title">Automation Hub</h2><span class="sd-layer">Execute</span><span class="sd-tag promote">promote</span></div>
+      <div class="sd-wrap">
+        <div class="ui-draft"><pre>┌──┬─────────────────────────────────────────────┐
+│<b>//</b>│ Automation Hub    Atlas · automation lifecycle│
+├──┼─────────────────────────────────────────────┤
+│▢ │ ┌Spotted┐┌Queued┐┌Building┐┌<b>Live</b>┐          │
+│▢ │ │   5  →││  2  →││   1   →││  6 │          │
+│<b>▣</b> │ └───────┘└──────┘└────────┘└────┘          │
+│▢ │ ┌─────────────────────────────────────────┐ │
+│▢ │ │ Nightly outreach snapshot   LIVE   ✓    │ │
+│▢ │ │ Lead-enrichment worker      BUILDING ⟳  │ │
+│▢ │ │ Invoice reminder            SPOTTED · ↑ │ │
+│▢ │ └─────────────────────────────────────────┘ │
+│▢ │  Atlas spots → builds → ships (assisted)     │
+└──┴─────────────────────────────────────────────┘</pre></div>
+        <div class="sd-desc">
+          <p class="d">The automation lifecycle SPOTTED → QUEUED → BUILDING → LIVE, run by Atlas.</p>
+          <div class="k">Promote from</div>
+          <ul><li><code>atlas-hub.html</code> (renamed from control-tower-LIVE)</li><li>Backed by <code>aios.atlas_*</code></li></ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SENSORS -->
+  <section class="slide s-bone" data-pattern="surface">
+    <div class="slide-inner">
+      <div class="sd-head"><h2 class="h-title">Sensors</h2><span class="sd-layer">Execute</span><span class="sd-tag build">later</span></div>
+      <div class="sd-wrap">
+        <div class="ui-draft"><pre>┌──┬─────────────────────────────────────────────┐
+│<b>//</b>│ Sensors      autopilot data layer · ingest  │
+├──┼─────────────────────────────────────────────┤
+│▢ │ ┌──────────┐┌──────────┐┌──────────┐         │
+│<b>▣</b> │ │ Gmail  ✓ ││Calendar ✓││ Slack  ⟳ │         │
+│▢ │ │ 12 new   ││ 3 today  ││ 5 msgs   │         │
+│▢ │ └──────────┘└──────────┘└──────────┘         │
+│▢ │ ┌──────────┐  every 15 min → Inbox + context │
+│▢ │ │Fireflies✓│                                  │
+│▢ │ │ 1 note   │  [ Connectors ]  [ Schedule ▾ ] │
+│▢ │ └──────────┘                                  │
+└──┴─────────────────────────────────────────────┘</pre></div>
+        <div class="sd-desc">
+          <p class="d">The autopilot DATA layer — passively ingests Gmail · Calendar · Slack · Fireflies on a schedule → feeds the Inbox + context.</p>
+          <div class="k">Status</div>
+          <ul><li>Deferred (later wave) — needs connector creds</li></ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTROL TOWER -->
+  <section class="slide s-bone" data-pattern="surface">
+    <div class="slide-inner">
+      <div class="sd-head"><h2 class="h-title">Control Tower</h2><span class="sd-layer">Grow · revenue</span><span class="sd-tag promote">promote</span></div>
+      <div class="sd-wrap">
+        <div class="ui-draft"><pre>┌──┬─────────────────────────────────────────────┐
+│<b>//</b>│ Control Tower    sales / lead-gen command   │
+├──┼─────────────────────────────────────────────┤
+│▢ │ ┌ Booked ┐┌ Sent ┐┌ Reply%┐┌<b>Pipeline</b>┐       │
+│<b>▣</b> │ │   2   ││ 312  ││ 4.1% ││  18.5M  │       │
+│▢ │ └────────┘└──────┘└───────┘└─────────┘       │
+│▢ │ Replies ▁▂▃▅▇▆▄  ← 7-day sparkline           │
+│▢ │ ┌─────────────────────────────────────────┐ │
+│▢ │ │ Sió Eco      demo booked   Thu 14:00    │ │
+│▢ │ │ CARRIES      proposal sent  · follow ↑  │ │
+│▢ │ └─────────────────────────────────────────┘ │
+│▢ │  [ Executive ] [ Cockpit ] [ Pipeline ]     │
+└──┴─────────────────────────────────────────────┘</pre></div>
+        <div class="sd-desc">
+          <p class="d">Sales / lead-gen command — Executive, Cockpit, Pipeline views with diagnostic metrics + sparklines.</p>
+          <div class="k">Promote from</div>
+          <ul><li><code>control-tower-DASHBOARD.html</code> (re-skin)</li></ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CRM -->
+  <section class="slide s-bone" data-pattern="surface">
+    <div class="slide-inner">
+      <div class="sd-head"><h2 class="h-title">CRM</h2><span class="sd-layer">Grow · revenue</span><span class="sd-tag promote">promote</span></div>
+      <div class="sd-wrap">
+        <div class="ui-draft"><pre>┌──┬─────────────────────────────────────────────┐
+│<b>//</b>│ CRM          contacts + pipeline (Attio)    │
+├──┼─────────────────────────────────────────────┤
+│▢ │ ┌New┐┌Contacted┐┌Demo┐┌Won┐  drag → stage    │
+│<b>▣</b> │ │ 8 ││   14   ││ 3 ││ 2 │                  │
+│▢ │ └───┘└─────────┘└────┘└───┘                  │
+│▢ │ ┌─────────────────────────────────────────┐ │
+│▢ │ │ Majer Gábor   Demo     ●  5.0M  · note  │ │
+│▢ │ │ Sió Eco       Contacted   next: call    │ │
+│▢ │ │ CARRIES       Won      ✓  retainer      │ │
+│▢ │ └─────────────────────────────────────────┘ │
+│▢ │  reads from Attio (source of truth)          │
+└──┴─────────────────────────────────────────────┘</pre></div>
+        <div class="sd-desc">
+          <p class="d">Contacts + pipeline, reading from Attio (the CRM source of truth — AIOS never replaces it).</p>
+          <div class="k">Promote from</div>
+          <ul><li>Perf-OS CRM tab → Attio-backed</li></ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FINANCE -->
+  <section class="slide s-bone" data-pattern="surface">
+    <div class="slide-inner">
+      <div class="sd-head"><h2 class="h-title">Finance</h2><span class="sd-layer">Money</span><span class="sd-tag promote">promote</span></div>
+      <div class="sd-wrap">
+        <div class="ui-draft"><pre>┌──┬─────────────────────────────────────────────┐
+│<b>//</b>│ Finance     balances · cash-vs-target       │
+├──┼─────────────────────────────────────────────┤
+│▢ │ ┏━ CASH COLLECTED ━━━━━━━━━━━━━━━━━━━━━━━┓   │
+│<b>▣</b> │ ┃ <b>5.0M</b> / 20M floor   ████░░░░░░ 25%  ┃   │
+│▢ │ ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛   │
+│▢ │ ┌Balance┐┌ In ┐┌ Out ┐┌ Runway ┐            │
+│▢ │ │ 3.2M  ││5.0M││ 1.1M││ 4.2 mo │            │
+│▢ │ └───────┘└────┘└─────┘└────────┘            │
+│▢ │ Cash ▁▂▄▅▇  Jul 15 · 5M  ·  Aug 15 · 5M     │
+│▢ │  [ WISE ]  [ Invoices ]                      │
+└──┴─────────────────────────────────────────────┘</pre></div>
+        <div class="sd-desc">
+          <p class="d">Balances, cash flow and the do-or-die number — cash collected vs the 20M/30M target, up front.</p>
+          <div class="k">Promote from</div>
+          <ul><li>Perf-OS finance tab → WISE / Sheets feed</li><li><b>Needs:</b> WISE creds or a Sheet URL (I'll ask)</li></ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FLOOR -->
+  <section class="slide s-bone" data-pattern="surface">
+    <div class="slide-inner">
+      <div class="sd-head"><h2 class="h-title">Floor</h2><span class="sd-layer">Personal · you only</span><span class="sd-tag promote">promote</span></div>
+      <div class="sd-wrap">
+        <div class="ui-draft"><pre>┌──┬─────────────────────────────────────────────┐
+│<b>//</b>│ Floor        daily driver · the sprint      │
+├──┼─────────────────────────────────────────────┤
+│▢ │ ┏━ THE FLOOR ━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓   │
+│<b>▣</b> │ ┃ Reps today  <b>14 / 20</b>   ███████░░░  ┃   │
+│▢ │ ┃ Show to every booked call    2 / 2  ✓ ┃   │
+│▢ │ ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛   │
+│▢ │ ┌ Sprint tasks ──────────────────────────┐  │
+│▢ │ │ ▣ 20 outreach reps      ⟳ 14 done      │  │
+│▢ │ │ ▢ 3 calls held → measure                │  │
+│▢ │ └─────────────────────────────────────────┘ │
+│▢ │  streak 6d  ·  never miss twice              │
+└──┴─────────────────────────────────────────────┘</pre></div>
+        <div class="sd-desc">
+          <p class="d">The daily driver — sprint tasks + the Floor (20 reps/day, show to every call). Ákos-only, private.</p>
+          <div class="k">Promote from</div>
+          <ul><li>Perf-OS board / personal Floor</li></ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PERFORMANCE -->
+  <section class="slide s-bone" data-pattern="surface">
+    <div class="slide-inner">
+      <div class="sd-head"><h2 class="h-title">Performance</h2><span class="sd-layer">Personal · you only</span><span class="sd-tag promote">promote</span></div>
+      <div class="sd-wrap">
+        <div class="ui-draft"><pre>┌──┬─────────────────────────────────────────────┐
+│<b>//</b>│ Performance   WHOOP · habits · scorecard    │
+├──┼─────────────────────────────────────────────┤
+│▢ │ ┌Recovery┐┌ Sleep ┐┌ Strain ┐┌<b>Score</b>┐        │
+│<b>▣</b> │ │  72% ↑ ││ 7h12m ││  14.2  ││ 8.1 │        │
+│▢ │ └────────┘└───────┘└────────┘└─────┘        │
+│▢ │ Habits ▣▣▣▢▣▣▣  ← this week                  │
+│▢ │ ┌─────────────────────────────────────────┐ │
+│▢ │ │ Journal · coach · ideal-week            │ │
+│▢ │ │ "address: sleep dipped Tue–Wed"  ↓→↑    │ │
+│▢ │ └─────────────────────────────────────────┘ │
+└──┴─────────────────────────────────────────────┘</pre></div>
+        <div class="sd-desc">
+          <p class="d">WHOOP · habits · scorecard · journal · coach · ideal-week — diagnostic cards that say what to address.</p>
+          <div class="k">Promote from</div>
+          <ul><li>Perf-OS performance tab (scorecard · habits · journal)</li></ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- GUIDE -->
+  <section class="slide s-bone" data-pattern="surface">
+    <div class="slide-inner">
+      <div class="sd-head"><h2 class="h-title">Guide</h2><span class="sd-layer">Help</span><span class="sd-tag build">build new</span></div>
+      <div class="sd-wrap">
+        <div class="ui-draft"><pre>┌──┬─────────────────────────────────────────────┐
+│<b>//</b>│ Guide       explain · onboard · ask         │
+├──┼─────────────────────────────────────────────┤
+│▢ │ ┌─────────────────────────────────────────┐ │
+│<b>▣</b> │ │ ? How do I add a task from my phone?   │ │
+│▢ │ │ → Capture from Jarvis (Telegram) or the │ │
+│▢ │ │   + button; it routes to the Inbox.     │ │
+│▢ │ └─────────────────────────────────────────┘ │
+│▢ │ Popular:  • Invite Kitti  • Log out         │
+│▢ │           • Wire a connector                 │
+│▢ │ ┌ Ask anything… ───────────────────┐ [↵]    │
+│▢ │ └──────────────────────────────────┘        │
+│▢ │  self-evolving Q&amp;A KB (learns from asks)   │
+└──┴─────────────────────────────────────────────┘</pre></div>
+        <div class="sd-desc">
+          <p class="d">Explain · onboard · support · ask — a self-evolving Q&amp;A knowledge base that grows from real questions.</p>
+          <div class="k">Key elements</div>
+          <ul><li>Ask box + answer · popular how-tos</li><li>Learns from questions (feedback loop)</li></ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SETTINGS / CONTROL PLANE (deferred) -->
+  <section class="slide s-paper" data-pattern="note">
+    <div class="slide-inner">
+      <div class="kicker">Deferred — wave 4</div>
+      <h2 class="h-title">System control plane — <span class="accent">not tonight</span></h2>
+      <ul class="b-list">
+        <li><span class="bn">▦</span><span class="bt"><b>Settings</b> — the toggle/config registry, the Needs-Ákos veto queue, and the connectors registry (Attio · Slack · Instantly · Supabase · Calendly · Resend · Fireflies)</span></li>
+        <li><span class="bn">▦</span><span class="bt"><b>6 system dashboards</b> — Sensors · Policy · Tools · Quality Gates · Learning · Logs/Monitoring — the autopilot control plane</span></li>
+        <li><span class="bn">→</span><span class="bt">These unlock <b>full autopilot</b> once Logs + Policy + Quality + Learning are live. Built after the operating surfaces — flagged here so nothing's hidden</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- CLOSE -->
+  <section class="slide s-ink" data-pattern="close">
+    <div class="edge-mark"><svg viewBox="0 0 80 56" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><polygon points="6,50 24,6 36,6 18,50" fill="var(--mark-front)"/><polygon points="36,50 54,6 66,6 48,50" fill="var(--mark-front)"/></svg></div>
+    <div class="slide-inner">
+      <div class="kicker">The gate before each ship</div>
+      <h2 class="h-title">Nothing ships unless it <span class="accent">passes the gate</span></h2>
+      <div class="flow">
+        <div class="flow-step"><div class="sn">1 · build</div><div class="st">Subagent</div><div class="sd">Re-skin / build against the kit, under the shell, wired to its data.</div></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step"><div class="sn">2 · test</div><div class="st">Playwright</div><div class="sd">Renders · 0 console errors · 0 page-errors · key interaction works.</div></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step"><div class="sn">3 · review</div><div class="st">/code-review</div><div class="sd">Correctness + reuse/simplification gate on the diff.</div></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step"><div class="sn">4 · gate</div><div class="st">Green → ship</div><div class="sd">Deploy + register; RED → park with a reason, never ship broken.</div></div>
+      </div>
+      <p class="lead">Review the surfaces, flag anything you want changed — then I lock the kit and the loop builds, starting with Operations</p>
+      <div class="cta-row"><span class="cta">Approve → build</span><span class="cta-alt">or flag any surface and I adjust first</span></div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+(function(){
+  const deck=document.getElementById('deck');
+  const slides=Array.from(document.querySelectorAll('.slide'));
+  const total=slides.length;
+  document.getElementById('tot').textContent=String(total).padStart(2,'0');
+  let idx=0;
+  function pad(n){return String(n+1).padStart(2,'0')}
+  function update(){document.getElementById('cur').textContent=pad(idx);document.getElementById('progress').style.width=((idx+1)/total*100)+'%';}
+  function go(n){idx=Math.max(0,Math.min(total-1,n));slides[idx].scrollIntoView({behavior:'smooth'});update();}
+  document.addEventListener('keydown',function(e){
+    if(['ArrowDown','ArrowRight','PageDown',' '].includes(e.key)){e.preventDefault();go(idx+1);}
+    else if(['ArrowUp','ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();go(idx-1);}
+    else if(e.key==='Home'){e.preventDefault();go(0);}
+    else if(e.key==='End'){e.preventDefault();go(total-1);}
+  });
+  let t;
+  deck.addEventListener('scroll',function(){clearTimeout(t);t=setTimeout(function(){const mid=deck.scrollTop+window.innerHeight/2;let best=0;slides.forEach(function(s,i){if(s.offsetTop<=mid)best=i;});if(best!==idx){idx=best;update();}},60);});
+  update();
+})();
+</script>
+</body>
+</html>
