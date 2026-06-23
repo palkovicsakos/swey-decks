@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Code — onboarding · SWEY</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#050A34; --deep:#092676; --signal:#085CF0; --air:#AFE9FD;
+  --paper:#F4F5FA; --paper-2:#ECEEF6; --bone:#FBFBFD; --line:#D9DCE6; --line-2:#1A2350; --mute:#6F7591;
+  --accent:var(--signal); --accent-on-dark:var(--air); --mute-on-dark:#9AA2CC; --lead-on-dark:#AAB1D6;
+  --on-dark-soft:#D6DBF2; --lead-on-signal:#0A1240;
+  --r-btn:10px; --r-card:14px; --r-card-lg:16px; --r-hero:18px; --r-pill:999px;
+  --shadow:rgba(5,10,52,.06); --shadow-lg:rgba(5,10,52,.07);
+  --shadow-card:0 1px 2px rgba(5,10,52,.06); --shadow-card-lg:0 2px 6px rgba(5,10,52,.07);
+  --shadow-hero:0 30px 60px -30px rgba(5,10,52,.25), 0 4px 12px -6px rgba(5,10,52,.15);
+  --mark-back:#AFE9FD; --mark-front:#085CF0;
+  --display:'Inter',system-ui,sans-serif; --body:'Inter',system-ui,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--body);color:var(--ink);background:var(--bone);-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-family:var(--display);letter-spacing:-.02em;line-height:1.05}
+.deck{scroll-snap-type:y mandatory;height:100vh;overflow-y:scroll}
+.slide{scroll-snap-align:start;min-height:100vh;width:100%;display:flex;flex-direction:column;justify-content:center;padding:6vh 7vw;position:relative}
+.slide-inner{max-width:1180px;margin:0 auto;width:100%;position:relative;z-index:1}
+.s-paper{background:var(--paper)} .s-paper-2{background:var(--paper-2)} .s-bone{background:var(--bone)}
+.s-ink{background:var(--ink);color:var(--paper)} .s-signal{background:var(--signal);color:var(--paper)} .s-air{background:var(--air);color:var(--ink)}
+.kicker{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.16em;color:var(--accent);margin-bottom:1.4rem}
+.s-ink .kicker{color:var(--accent-on-dark)} .s-signal .kicker{color:var(--ink)} .s-air .kicker{color:var(--deep)}
+.h-hero{font-size:clamp(2.6rem,7vw,5.4rem);font-weight:900;letter-spacing:-.035em}
+.h-title{font-size:clamp(2rem,5vw,3.4rem);font-weight:800}
+.lead{font-size:clamp(1.05rem,1.7vw,1.4rem);font-weight:400;color:var(--mute);max-width:56ch;line-height:1.5;margin-top:1.5rem}
+.s-ink .lead{color:var(--lead-on-dark)} .s-signal .lead{color:var(--lead-on-signal);opacity:.92}
+.accent{color:var(--accent)} .s-ink .accent{color:var(--accent-on-dark)} .s-signal .accent,.s-air .accent{color:var(--ink)}
+.mark{display:inline-block;line-height:0} .mark svg{display:block}
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r-card-lg);overflow:hidden;margin-top:2rem}
+.s-ink .stat-grid{background:var(--line-2);border-color:var(--line-2)}
+.stat{background:var(--paper);padding:1.8rem 1.5rem} .s-ink .stat{background:var(--ink)}
+.stat .num{font-family:var(--display);font-size:clamp(2rem,4vw,3rem);font-weight:900;letter-spacing:-.04em;line-height:1}
+.stat .unit{color:var(--accent)} .s-ink .stat .unit{color:var(--accent-on-dark)}
+.stat .lbl{margin-top:.6rem;font-size:.82rem;font-weight:600;color:var(--mute);line-height:1.3} .s-ink .stat .lbl{color:var(--mute-on-dark)}
+.dom-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:2rem}
+.dom{background:var(--paper-2);border-radius:var(--r-card);padding:1.4rem 1.3rem;box-shadow:var(--shadow-card);display:flex;flex-direction:column;gap:.5rem}
+.dom.feat{background:var(--ink);color:var(--paper)}
+.dom .n{font-family:var(--display);font-size:.82rem;font-weight:800;color:var(--accent)} .dom.feat .n{color:var(--accent-on-dark)}
+.dom .t{font-family:var(--display);font-size:1.1rem;font-weight:800;letter-spacing:-.01em}
+.dom .d{font-size:.82rem;color:var(--mute);line-height:1.4} .dom.feat .d{color:var(--on-dark-soft)}
+.b-list{list-style:none;margin-top:2rem;display:flex;flex-direction:column;gap:.9rem}
+.b-list li{display:flex;gap:1.3rem;align-items:baseline;padding-bottom:.9rem;border-bottom:1px solid var(--line)}
+.b-list li:last-child{border-bottom:0}
+.b-list .bn{font-family:var(--display);font-weight:900;font-size:1.05rem;color:var(--accent);min-width:2.2ch}
+.b-list .bt{font-size:1.05rem;line-height:1.4;color:var(--ink)} .b-list .bt b{font-weight:700}
+.s-ink .b-list li{border-color:var(--line-2)} .s-ink .b-list .bt{color:var(--paper)} .s-ink .b-list .bn{color:var(--accent-on-dark)}
+.pay-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:2rem}
+.pay{background:rgba(255,255,255,.08);border-radius:14px;padding:1.5rem 1.3rem}
+.pay .pn{font-family:var(--display);font-size:1.4rem;font-weight:900;color:var(--accent-on-dark)}
+.pay .pt{font-family:var(--display);font-weight:800;font-size:1rem;margin-top:.6rem}
+.pay .pd{font-size:.8rem;color:var(--lead-on-dark);line-height:1.4;margin-top:.4rem}
+.nt-list{display:flex;flex-direction:column;gap:12px;margin-top:1.8rem}
+.nt{background:var(--paper);border-radius:12px;padding:1rem 1.3rem;box-shadow:0 1px 2px var(--shadow);display:flex;gap:1rem;align-items:baseline}
+.nt .y{font-family:var(--display);font-weight:900;color:var(--accent)}
+.nt .nt-txt{font-size:.98rem;line-height:1.4} .nt .nt-txt b{font-weight:700}
+/* table */
+.opt-table{width:100%;border-collapse:collapse;margin-top:2rem;font-size:1rem}
+.opt-table th{text-align:left;font-weight:700;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);padding:0 1.1rem 1rem;border-bottom:2px solid var(--line)}
+.opt-table td{padding:1.05rem 1.1rem;border-bottom:1px solid var(--line);color:var(--ink)}
+.opt-table .opt-name{font-weight:700}
+.opt-table tr.opt-pick td{background:var(--paper-2)}
+.opt-table tr.opt-pick .opt-name{color:var(--accent)}
+.pill{display:inline-block;margin-left:.5rem;font-size:.62rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--paper);background:var(--accent);padding:.2rem .55rem;border-radius:var(--r-pill);vertical-align:middle}
+/* mockup + workflow */
+.feat-split{display:grid;grid-template-columns:.9fr 1.1fr;gap:2.2rem;align-items:center;margin-top:1.6rem}
+.fdesc .fk{font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+.fdesc ul{list-style:none;margin-top:1.1rem;display:flex;flex-direction:column;gap:.7rem}
+.fdesc li{font-size:.95rem;line-height:1.4;padding-left:1.3rem;position:relative;color:var(--ink)}
+.fdesc li::before{content:"//";position:absolute;left:0;color:var(--accent);font-weight:800;font-size:.8rem;top:.15em}
+.mock{background:var(--bone);border:1px solid var(--line);border-radius:var(--r-card-lg);box-shadow:var(--shadow-hero);overflow:hidden}
+.mock-bar{display:flex;align-items:center;gap:6px;padding:11px 14px;background:var(--paper-2);border-bottom:1px solid var(--line)}
+.mock-bar i{width:9px;height:9px;border-radius:50%;background:var(--line)}
+.mock-bar .mt{margin-left:8px;font-size:.74rem;font-weight:600;color:var(--mute)}
+.mock-body{padding:18px 20px}
+.you{font-size:.86rem;background:var(--paper);border:1px solid var(--line);border-radius:var(--r-btn);padding:10px 13px;color:var(--ink);line-height:1.4}
+.you::before{content:"\203A";color:var(--accent);font-weight:800;margin-right:7px}
+.out-card{margin-top:12px;border:1px solid var(--line);border-radius:var(--r-btn);padding:13px 15px}
+.out-card .subj{font-weight:700;font-size:.92rem;color:var(--ink)}
+.out-card .ln{height:7px;border-radius:4px;background:var(--paper-2);margin-top:9px}
+.out-card .ln.w1{width:96%}.out-card .ln.w2{width:88%}.out-card .ln.w3{width:70%}
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:13px}
+.chip{font-size:.74rem;font-weight:600;padding:4px 11px;border-radius:var(--r-pill);background:var(--paper-2);color:var(--accent)}
+.cmpmini{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.cmpmini .box{border:1px solid var(--line);border-radius:var(--r-btn);padding:12px}
+.cmpmini .box .tag{font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:9px}
+.cmpmini .messy .tag{color:var(--mute)}.cmpmini .clean .tag{color:var(--accent)}
+.cmpmini .ln{height:7px;border-radius:4px;margin-top:7px;background:var(--paper-2)}
+.cmpmini .messy .ln:nth-child(2){width:60%}.cmpmini .messy .ln:nth-child(4){width:90%}.cmpmini .messy .ln:nth-child(5){width:45%}
+.cmpmini .clean .ln{background:var(--air)}.cmpmini .clean .ln:nth-child(2){width:80%}.cmpmini .clean .ln:nth-child(4){width:70%}
+.fan{display:flex;align-items:center;gap:14px}
+.fan .src{flex:none;width:130px}
+.fan .arr{color:var(--accent);font-weight:800;font-size:1.4rem}
+.fan .outs{display:flex;flex-direction:column;gap:8px;flex:1}
+.plan-row{display:flex;align-items:center;gap:11px;padding:10px 13px;border:1px solid var(--line);border-radius:var(--r-btn);margin-top:9px;font-size:.9rem}
+.plan-row.one{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.plan-row .d{width:18px;height:18px;border-radius:50%;border:2px solid var(--line);flex:none}
+.plan-row.one .d{border-color:var(--air);background:var(--air)}
+.plan-row .star{margin-left:auto;font-size:.7rem;font-weight:700;color:var(--accent);letter-spacing:.08em}
+.plan-row.one .star{color:var(--air)}
+.chart-wrap{position:relative;width:100%;height:340px;background:var(--bone);border:1px solid var(--line);border-radius:var(--r-card-lg);padding:20px;box-shadow:var(--shadow-card-lg)}
+.cap{font-size:.82rem;color:var(--mute);margin-top:1rem}
+/* calculator */
+.calc{background:var(--bone);border:1px solid var(--line);border-radius:var(--r-card-lg);padding:1.8rem;box-shadow:var(--shadow-card-lg);margin-top:1.6rem}
+.calc .crow{display:flex;align-items:center;gap:16px;margin-bottom:16px}
+.calc .crow label{min-width:160px;font-size:.9rem;color:var(--mute)}
+.calc .crow input[type=range]{flex:1;accent-color:var(--signal)}
+.calc .crow .out{min-width:96px;text-align:right;font-weight:800;font-size:1.05rem}
+/* interactive checklist */
+.chk{display:flex;align-items:flex-start;gap:13px;padding:13px 16px;border:1px solid var(--line);border-radius:var(--r-btn);margin-bottom:9px;cursor:pointer;background:var(--bone)}
+.chk input{margin-top:2px;accent-color:var(--signal);width:18px;height:18px;flex:none}
+.chk span{font-size:1rem;color:var(--ink)} .chk span b{font-weight:700}
+.chk.done span{text-decoration:line-through;color:var(--mute)}
+/* try-it picker */
+.tasks{display:flex;flex-wrap:wrap;gap:8px;margin-top:1.6rem}
+.task-pick{font-family:inherit;font-size:.92rem;font-weight:600;padding:10px 18px;border:1px solid var(--line);background:var(--bone);border-radius:var(--r-pill);cursor:pointer;color:var(--mute)}
+.task-pick.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.prompt-box{margin-top:16px;background:var(--bone);border:1px solid var(--line);border-radius:var(--r-card-lg);box-shadow:var(--shadow-card-lg);overflow:hidden}
+.pb-head{display:flex;align-items:center;justify-content:space-between;padding:11px 16px;background:var(--paper-2);border-bottom:1px solid var(--line);font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+.pb-body{padding:18px;font-size:1.05rem;line-height:1.55;color:var(--ink)}
+.copy-btn{font-family:inherit;font-size:.78rem;font-weight:700;letter-spacing:.04em;padding:7px 16px;border:none;border-radius:var(--r-btn);background:var(--signal);color:var(--paper);cursor:pointer}
+.copy-btn.done{background:var(--deep)}
+/* prompt library (copy-many) */
+.prompt-list{display:flex;flex-direction:column;gap:8px;margin-top:1.3rem}
+.prompt-item{background:var(--bone);border:1px solid var(--line);border-radius:var(--r-card);box-shadow:var(--shadow-card);overflow:hidden}
+.pi-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:7px 8px 7px 15px;background:var(--paper-2);border-bottom:1px solid var(--line)}
+.pi-head .lbl{font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--signal)}
+.pi-body{padding:9px 15px;font-size:.9rem;line-height:1.45;color:var(--ink)}
+/* diagram */
+.diagram{margin-top:1.8rem;background:var(--bone);border:1px solid var(--line);border-radius:var(--r-card-lg);padding:24px;box-shadow:var(--shadow-card-lg)}
+.diagram svg{width:100%;height:auto;display:block;font-family:var(--display)}
+/* nav + lang */
+.counter{position:fixed;bottom:26px;right:30px;z-index:50;font-family:var(--display);font-weight:700;font-size:.82rem;color:var(--mute);background:rgba(244,245,250,.85);padding:.4rem .8rem;border-radius:999px;border:1px solid var(--line)}
+.counter b{color:var(--accent)}
+.progress{position:fixed;top:0;left:0;height:3px;background:var(--accent);z-index:50;width:0;transition:width .25s ease}
+.hint{position:fixed;bottom:26px;left:30px;z-index:50;font-size:.74rem;font-weight:600;color:var(--mute)} .hint span{color:var(--accent);font-weight:700}
+.langtog{position:fixed;top:18px;right:24px;z-index:60;display:flex;gap:3px;background:rgba(244,245,250,.9);padding:4px;border-radius:999px;border:1px solid var(--line)}
+.langtog button{font-family:inherit;border:none;background:none;cursor:pointer;font-size:12px;font-weight:700;padding:5px 13px;border-radius:999px;color:var(--mute)}
+.langtog button.on{background:var(--ink);color:var(--paper)}
+.edge-mark{position:absolute;right:-2vw;bottom:-4vh;opacity:.06;z-index:0;pointer-events:none} .edge-mark svg{width:46vw;height:auto} .s-signal .edge-mark{opacity:.12}
+@media (max-width:920px){
+  .stat-grid,.dom-grid,.pay-grid{grid-template-columns:repeat(2,1fr)}
+  .split,.feat-split,.fan{display:block} .feat-split .mock,.fan .outs{margin-top:1.4rem} .cmpmini{grid-template-columns:1fr}
+}
+@page{size:A4 landscape;margin:0}
+@media print{
+  html,body{height:auto;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .deck{height:auto;overflow:visible;scroll-snap-type:none;display:block}
+  .slide{min-height:auto;height:100vh;page-break-after:always;break-after:page;page-break-inside:avoid;display:flex}
+  .slide:last-child{page-break-after:auto} .counter,.progress,.hint,.langtog{display:none!important}
+  .h-hero{font-size:3.2rem}.h-title{font-size:2.2rem}
+}
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+<div class="counter"><b id="cur">01</b> / <span id="tot">21</span></div>
+<div class="hint" data-en="scroll or ↑ ↓ → ← to navigate" data-hu="görgess vagy ↑ ↓ → ← a léptetéshez">scroll or <span>↑ ↓ → ←</span> to navigate</div>
+<div class="langtog"><button data-lang="en" class="on">EN</button><button data-lang="hu">HU</button></div>
+
+<main class="deck" id="deck">
+
+  <!-- 01 TITLE -->
+  <section class="slide s-ink" data-pattern="title">
+    <div class="edge-mark"><svg viewBox="0 0 80 56" aria-hidden="true"><polygon points="6,50 24,6 36,6 18,50" fill="var(--mark-front)"/><polygon points="36,50 54,6 66,6 48,50" fill="var(--mark-front)"/></svg></div>
+    <div class="slide-inner">
+      <div class="mark" style="margin-bottom:2.2rem"><svg width="84" height="59" viewBox="0 0 80 56" aria-label="SWEY"><polygon points="6,50 24,6 36,6 18,50" fill="var(--mark-back)"/><polygon points="36,50 54,6 66,6 48,50" fill="var(--mark-front)"/></svg></div>
+      <div class="kicker" data-en="Claude Code · onboarding for Kitti" data-hu="Claude Code · bevezető Kittinek">Claude Code · onboarding for Kitti</div>
+      <h1 class="h-hero" data-en="The Claude that<br>does the <span class='accent'>work</span>" data-hu="Az a Claude, amelyik<br>el is <span class='accent'>végzi</span> a munkát">The Claude that<br>does the <span class="accent">work</span></h1>
+      <p class="lead" data-en="You know Claude for chat and design. This is the one that builds the files, runs the tasks, and shows you the result" data-hu="A Claude-ot ismered chatre és designra. Ez az, amelyik megépíti a fájlokat, lefuttatja a feladatokat, és megmutatja az eredményt">You know Claude for chat and design. This is the one that builds the files, runs the tasks, and shows you the result</p>
+    </div>
+  </section>
+
+  <!-- 02 THE SHIFT -->
+  <section class="slide s-paper" data-pattern="three">
+    <div class="slide-inner">
+      <div class="kicker" data-en="The shift" data-hu="A váltás">The shift</div>
+      <h2 class="h-title" data-en="Chat talks. Code <span class='accent'>works</span>" data-hu="A chat beszél. A Code <span class='accent'>dolgozik</span>">Chat talks. Code <span class="accent">works</span></h2>
+      <div class="dom-grid">
+        <div class="dom"><div class="n" data-en="You know this" data-hu="Ezt ismered">You know this</div><div class="t" data-en="Claude chat" data-hu="Claude chat">Claude chat</div><div class="d" data-en="Ask, brainstorm, write, get answers. Great for thinking" data-hu="Kérdezel, ötletelsz, írsz, választ kapsz. Gondolkodásra remek">Ask, brainstorm, write, get answers. Great for thinking</div></div>
+        <div class="dom"><div class="n" data-en="You know this" data-hu="Ezt ismered">You know this</div><div class="t" data-en="Claude design" data-hu="Claude design">Claude design</div><div class="d" data-en="Generate visuals and design directions. Great for look-and-feel" data-hu="Vizuálokat és design-irányokat gyártasz. A megjelenésre remek">Generate visuals and design directions. Great for look-and-feel</div></div>
+        <div class="dom feat"><div class="n" data-en="New" data-hu="Új">New</div><div class="t" data-en="Claude Code" data-hu="Claude Code">Claude Code</div><div class="d" data-en="Acts on real files and tools. Builds, runs, automates" data-hu="Valódi fájlokon és eszközökön dolgozik. Épít, futtat, automatizál">Acts on real files and tools. Builds, runs, automates</div></div>
+      </div>
+      <p class="lead" data-en="If the answer is &quot;now go make or run something real&quot; — that's a Claude Code job" data-hu="Ha a válasz az, hogy „most menj és csinálj vagy futtass valami valódit” — az Claude Code-feladat">If the answer is "now go make or run something real" — that's a Claude Code job</p>
+    </div>
+  </section>
+
+  <!-- 03 GETTING IN -->
+  <section class="slide s-bone" data-pattern="process">
+    <div class="slide-inner">
+      <div class="kicker" data-en="Setup" data-hu="Beállítás">Setup</div>
+      <h2 class="h-title" data-en="Getting in — <span class='accent'>no terminal</span>" data-hu="Belépés — <span class='accent'>terminál nélkül</span>">Getting in — <span class="accent">no terminal</span></h2>
+      <ul class="b-list">
+        <li><span class="bn">01</span><span class="bt" data-en="<b>Install the app</b> — Ákos sets up access on your machine" data-hu="<b>Telepítsd az appot</b> — Ákos beállítja a hozzáférést a gépeden"><b>Install the app</b> — Ákos sets up access on your machine</span></li>
+        <li><span class="bn">02</span><span class="bt" data-en="<b>Open the workspace</b> — so Claude sees our files and context" data-hu="<b>Nyisd meg a munkateret</b> — hogy a Claude lássa a fájljainkat és a kontextust"><b>Open the workspace</b> — so Claude sees our files and context</span></li>
+        <li><span class="bn">03</span><span class="bt" data-en="<b>Helpers are loaded</b> — skills like Copy Lab just work" data-hu="<b>A segédek készen állnak</b> — a skillek, mint a Copy Lab, azonnal mennek"><b>Helpers are loaded</b> — skills like Copy Lab just work</span></li>
+        <li><span class="bn">04</span><span class="bt" data-en="<b>Just type</b> — plain language, no commands to learn" data-hu="<b>Csak írj</b> — hétköznapi nyelven, semmit nem kell megtanulni"><b>Just type</b> — plain language, no commands to learn</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 04 INTERFACE -->
+  <section class="slide s-paper" data-pattern="bullets">
+    <div class="slide-inner">
+      <div class="kicker" data-en="Orientation" data-hu="Tájékozódás">Orientation</div>
+      <h2 class="h-title" data-en="The interface, at a <span class='accent'>glance</span>" data-hu="A felület egy <span class='accent'>pillantásra</span>">The interface, at a <span class="accent">glance</span></h2>
+      <ul class="b-list">
+        <li><span class="bn">01</span><span class="bt" data-en="<b>Inline visuals</b> — charts, diagrams, dashboards appear right in the chat" data-hu="<b>Beágyazott vizuálok</b> — diagramok, dashboardok egyből a chatben jelennek meg"><b>Inline visuals</b> — charts, diagrams, dashboards appear right in the chat</span></li>
+        <li><span class="bn">02</span><span class="bt" data-en="<b>Drag &amp; drop</b> — drop a screenshot in and say &quot;match this&quot;" data-hu="<b>Húzd és ejtsd</b> — ejts be egy képernyőképet, és mondd: „csináld ilyenre”"><b>Drag &amp; drop</b> — drop a screenshot in and say "match this"</span></li>
+        <li><span class="bn">03</span><span class="bt" data-en="<b>Voice input</b> — dictate instead of typing (Wispr Flow works too)" data-hu="<b>Hangbevitel</b> — gépelés helyett diktálhatsz (a Wispr Flow is jó)"><b>Voice input</b> — dictate instead of typing (Wispr Flow works too)</span></li>
+        <li><span class="bn">04</span><span class="bt" data-en="<b>Pin as chapter</b> — bookmark and jump around a long session" data-hu="<b>Fejezet rögzítése</b> — könyvjelző és ugrálás egy hosszú menetben"><b>Pin as chapter</b> — bookmark and jump around a long session</span></li>
+        <li><span class="bn">05</span><span class="bt" data-en="<b>Question pickers</b> — clickable options with a recommendation" data-hu="<b>Választó kérdések</b> — kattintható opciók, ajánlással"><b>Question pickers</b> — clickable options with a recommendation</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 05 DIVIDER -->
+  <section class="slide s-signal" data-pattern="divider">
+    <div class="edge-mark"><svg viewBox="0 0 80 56" aria-hidden="true"><polygon points="6,50 24,6 36,6 18,50" fill="var(--ink)"/><polygon points="36,50 54,6 66,6 48,50" fill="var(--ink)"/></svg></div>
+    <div class="slide-inner">
+      <div class="kicker" data-en="Part one" data-hu="Első rész">Part one</div>
+      <h2 class="h-hero" data-en="What it builds<br>inline" data-hu="Amit beépít<br>a chatbe">What it builds<br>inline</h2>
+      <p class="lead" data-en="Six things a normal chat or a static slide simply can't do" data-hu="Hat dolog, amit egy sima chat vagy egy statikus dia egyszerűen nem tud">Six things a normal chat or a static slide simply can't do</p>
+    </div>
+  </section>
+
+  <!-- 06 BAR CHART -->
+  <section class="slide s-bone" data-pattern="chart">
+    <div class="slide-inner">
+      <div class="kicker" data-en="Charts" data-hu="Grafikonok">Charts</div>
+      <h2 class="h-title" data-en="Live <span class='accent'>charts</span> from a sentence" data-hu="Élő <span class='accent'>grafikon</span> egy mondatból">Live <span class="accent">charts</span> from a sentence</h2>
+      <div class="chart-wrap">
+        <svg viewBox="0 0 600 300" style="width:100%;height:100%;font-family:var(--display)" role="img" aria-label="Bar chart: content shipped per week, climbing 3 to 15">
+          <title data-en="Content shipped per week" data-hu="Heti kiszállított tartalom">Content shipped per week</title>
+          <line x1="40" y1="250" x2="580" y2="250" stroke="var(--line)" stroke-width="1.5"/>
+          <rect x="62"  y="206" width="64" height="44"  rx="6" fill="var(--signal)"/>
+          <rect x="170" y="162" width="64" height="88"  rx="6" fill="var(--signal)"/>
+          <rect x="278" y="133" width="64" height="117" rx="6" fill="var(--signal)"/>
+          <rect x="386" y="89"  width="64" height="161" rx="6" fill="var(--signal)"/>
+          <rect x="494" y="30"  width="64" height="220" rx="6" fill="var(--signal)"/>
+          <text x="94" y="196" text-anchor="middle" font-weight="800" font-size="17" fill="var(--ink)">3</text>
+          <text x="202" y="152" text-anchor="middle" font-weight="800" font-size="17" fill="var(--ink)">6</text>
+          <text x="310" y="123" text-anchor="middle" font-weight="800" font-size="17" fill="var(--ink)">8</text>
+          <text x="418" y="79"  text-anchor="middle" font-weight="800" font-size="17" fill="var(--ink)">11</text>
+          <text x="526" y="20"  text-anchor="middle" font-weight="800" font-size="17" fill="var(--ink)">15</text>
+          <text x="94"  y="274" text-anchor="middle" font-size="13" fill="var(--mute)" data-en="Wk 1" data-hu="1. hét">Wk 1</text>
+          <text x="202" y="274" text-anchor="middle" font-size="13" fill="var(--mute)" data-en="Wk 2" data-hu="2. hét">Wk 2</text>
+          <text x="310" y="274" text-anchor="middle" font-size="13" fill="var(--mute)" data-en="Wk 3" data-hu="3. hét">Wk 3</text>
+          <text x="418" y="274" text-anchor="middle" font-size="13" fill="var(--mute)" data-en="Wk 4" data-hu="4. hét">Wk 4</text>
+          <text x="526" y="274" text-anchor="middle" font-size="13" fill="var(--mute)" data-en="Wk 5" data-hu="5. hét">Wk 5</text>
+        </svg>
+      </div>
+      <p class="cap" data-en="Sample data. Just describe what you want plotted — it draws it inline, no spreadsheet" data-hu="Példaadat. Csak mondd el, mit ábrázoljon — egyből megrajzolja, táblázat nélkül">Sample data. Just describe what you want plotted — it draws it inline, no spreadsheet</p>
+    </div>
+  </section>
+
+  <!-- 07 CALCULATOR -->
+  <section class="slide s-paper" data-pattern="calculator">
+    <div class="slide-inner">
+      <div class="kicker" data-en="Interactive" data-hu="Interaktív">Interactive</div>
+      <h2 class="h-title" data-en="Calculators you can <span class='accent'>drag</span>" data-hu="Kalkulátor, amit <span class='accent'>húzhatsz</span>">Calculators you can <span class="accent">drag</span></h2>
+      <div class="calc">
+        <div class="crow"><label data-en="Projects / month" data-hu="Projekt / hó">Projects / month</label><input type="range" id="d_proj" min="1" max="30" value="8" step="1"><span class="out" id="o_proj">8</span></div>
+        <div class="crow"><label data-en="Avg fee (€)" data-hu="Átlagdíj (€)">Avg fee (€)</label><input type="range" id="d_fee" min="200" max="5000" value="1200" step="100"><span class="out" id="o_fee">€1,200</span></div>
+        <div class="stat-grid" style="grid-template-columns:1fr 1fr;margin-top:1.2rem">
+          <div class="stat"><div class="num" id="o_rev">€9,600</div><div class="lbl" data-en="Monthly revenue" data-hu="Havi bevétel">Monthly revenue</div></div>
+          <div class="stat"><div class="num" id="o_year">€115,200</div><div class="lbl" data-en="Yearly run-rate" data-hu="Éves szinten">Yearly run-rate</div></div>
+        </div>
+      </div>
+      <p class="cap" data-en="Try it — drag the sliders. A static slide can't recalculate; this does" data-hu="Próbáld ki — húzd a csúszkákat. Egy statikus dia nem számol újra; ez igen">Try it — drag the sliders. A static slide can't recalculate; this does</p>
+    </div>
+  </section>
+
+  <!-- 08 COMPARISON TABLE -->
+  <section class="slide s-bone" data-pattern="table">
+    <div class="slide-inner">
+      <div class="kicker" data-en="Tables" data-hu="Táblázatok">Tables</div>
+      <h2 class="h-title" data-en="Side-by-side <span class='accent'>comparisons</span>" data-hu="Egymás melletti <span class='accent'>összevetés</span>">Side-by-side <span class="accent">comparisons</span></h2>
+      <table class="opt-table">
+        <thead><tr>
+          <th data-en="Surface" data-hu="Felület">Surface</th>
+          <th data-en="Best for" data-hu="Mire jó">Best for</th>
+          <th data-en="Builds files?" data-hu="Épít fájlt?">Builds files?</th>
+          <th data-en="Runs tasks?" data-hu="Futtat feladatot?">Runs tasks?</th>
+        </tr></thead>
+        <tbody>
+          <tr><td class="opt-name">Claude chat</td><td data-en="Thinking, drafting" data-hu="Gondolkodás, fogalmazás">Thinking, drafting</td><td data-en="No" data-hu="Nem">No</td><td data-en="No" data-hu="Nem">No</td></tr>
+          <tr><td class="opt-name">Claude design</td><td data-en="Look &amp; feel" data-hu="Megjelenés">Look &amp; feel</td><td data-en="No" data-hu="Nem">No</td><td data-en="No" data-hu="Nem">No</td></tr>
+          <tr class="opt-pick"><td class="opt-name">Claude Code<span class="pill" data-en="your tool" data-hu="a te eszközöd">your tool</span></td><td data-en="Building &amp; doing" data-hu="Építés és csinálás">Building &amp; doing</td><td data-en="Yes" data-hu="Igen">Yes</td><td data-en="Yes" data-hu="Igen">Yes</td></tr>
+        </tbody>
+      </table>
+      <p class="cap" data-en="Ask for a comparison of anything — tools, options, plans — and get a clean table" data-hu="Kérj összevetést bármiről — eszközök, opciók, tervek — és tiszta táblát kapsz">Ask for a comparison of anything — tools, options, plans — and get a clean table</p>
+    </div>
+  </section>
+
+  <!-- 09 FLOWCHART -->
+  <section class="slide s-paper" data-pattern="flowchart">
+    <div class="slide-inner">
+      <div class="kicker" data-en="Flowcharts" data-hu="Folyamatábrák">Flowcharts</div>
+      <h2 class="h-title" data-en="It maps a <span class='accent'>process</span>" data-hu="Felrajzol egy <span class='accent'>folyamatot</span>">It maps a <span class="accent">process</span></h2>
+      <div class="diagram">
+        <svg viewBox="0 0 600 130" role="img" aria-label="Flow: brief to draft to review to publish">
+          <title data-en="Content flow" data-hu="Tartalom-folyamat">Content flow</title>
+          <defs><marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="var(--signal)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+          <g><rect x="14" y="40" width="120" height="50" rx="10" fill="var(--paper-2)" stroke="var(--line)"/><text x="74" y="70" text-anchor="middle" font-weight="700" font-size="15" fill="var(--ink)" data-en="Brief" data-hu="Brief">Brief</text></g>
+          <g><rect x="174" y="40" width="120" height="50" rx="10" fill="var(--paper-2)" stroke="var(--line)"/><text x="234" y="70" text-anchor="middle" font-weight="700" font-size="15" fill="var(--ink)" data-en="Draft" data-hu="Vázlat">Draft</text></g>
+          <g><rect x="334" y="40" width="120" height="50" rx="10" fill="var(--paper-2)" stroke="var(--line)"/><text x="394" y="70" text-anchor="middle" font-weight="700" font-size="15" fill="var(--ink)" data-en="You review" data-hu="Te átnézed">You review</text></g>
+          <g><rect x="494" y="40" width="100" height="50" rx="10" fill="var(--signal)"/><text x="544" y="70" text-anchor="middle" font-weight="700" font-size="15" fill="var(--paper)" data-en="Publish" data-hu="Közzé">Publish</text></g>
+          <line x1="134" y1="65" x2="172" y2="65" stroke="var(--signal)" stroke-width="1.6" marker-end="url(#ar)"/>
+          <line x1="294" y1="65" x2="332" y2="65" stroke="var(--signal)" stroke-width="1.6" marker-end="url(#ar)"/>
+          <line x1="454" y1="65" x2="492" y2="65" stroke="var(--signal)" stroke-width="1.6" marker-end="url(#ar)"/>
+        </svg>
+      </div>
+      <p class="cap" data-en="Approval workflows, pipelines, decision trees — drawn from a plain description" data-hu="Jóváhagyási folyamatok, pipeline-ok, döntési fák — egyszerű leírásból megrajzolva">Approval workflows, pipelines, decision trees — drawn from a plain description</p>
+    </div>
+  </section>
+
+  <!-- 10 ARCHITECTURE DIAGRAM -->
+  <section class="slide s-ink" data-pattern="architecture">
+    <div class="slide-inner">
+      <div class="kicker" data-en="Architecture" data-hu="Architektúra">Architecture</div>
+      <h2 class="h-title" data-en="And how things <span class='accent'>connect</span>" data-hu="És hogy mi mihez <span class='accent'>kapcsolódik</span>">And how things <span class="accent">connect</span></h2>
+      <div class="diagram" style="background:transparent;border-color:var(--line-2)">
+        <svg viewBox="0 0 600 230" role="img" aria-label="Workspace containing Copy Lab, Design and Planning, all read by Claude">
+          <title data-en="Your connected workspace" data-hu="Az összekapcsolt munkatered">Your connected workspace</title>
+          <rect x="20" y="30" width="560" height="180" rx="18" fill="none" stroke="var(--air)" stroke-width="1.2"/>
+          <text x="44" y="58" font-weight="800" font-size="14" fill="var(--air)" data-en="Shared workspace" data-hu="Közös munkatér">Shared workspace</text>
+          <g><rect x="44" y="80" width="160" height="100" rx="12" fill="rgba(255,255,255,.08)"/><text x="124" y="124" text-anchor="middle" font-weight="800" font-size="15" fill="var(--paper)" data-en="Copy Lab" data-hu="Copy Lab">Copy Lab</text><text x="124" y="146" text-anchor="middle" font-size="12" fill="var(--on-dark-soft)" data-en="Hungarian copy" data-hu="Magyar szöveg">Hungarian copy</text></g>
+          <g><rect x="220" y="80" width="160" height="100" rx="12" fill="rgba(255,255,255,.08)"/><text x="300" y="124" text-anchor="middle" font-weight="800" font-size="15" fill="var(--paper)" data-en="Design" data-hu="Design">Design</text><text x="300" y="146" text-anchor="middle" font-size="12" fill="var(--on-dark-soft)" data-en="UI &amp; review" data-hu="UI és review">UI &amp; review</text></g>
+          <g><rect x="396" y="80" width="160" height="100" rx="12" fill="rgba(255,255,255,.08)"/><text x="476" y="124" text-anchor="middle" font-weight="800" font-size="15" fill="var(--paper)" data-en="Planning" data-hu="Tervezés">Planning</text><text x="476" y="146" text-anchor="middle" font-size="12" fill="var(--on-dark-soft)" data-en="Tasks &amp; ops" data-hu="Feladatok">Tasks &amp; ops</text></g>
+        </svg>
+      </div>
+      <p class="lead" data-en="Claude reads the whole workspace — so it works with full context, not in a vacuum" data-hu="A Claude az egész munkateret látja — teljes kontextussal dolgozik, nem vakon">Claude reads the whole workspace — so it works with full context, not in a vacuum</p>
+    </div>
+  </section>
+
+  <!-- 11 DASHBOARD -->
+  <section class="slide s-bone" data-pattern="dashboard">
+    <div class="slide-inner">
+      <div class="kicker" data-en="Dashboards" data-hu="Dashboardok">Dashboards</div>
+      <h2 class="h-title" data-en="Live <span class='accent'>dashboards</span>, not screenshots" data-hu="Élő <span class='accent'>dashboardok</span>, nem képernyőképek">Live <span class="accent">dashboards</span>, not screenshots</h2>
+      <div class="stat-grid">
+        <div class="stat"><div class="num">18.4<span class="unit">M</span></div><div class="lbl" data-en="Revenue this month" data-hu="Havi bevétel">Revenue this month</div></div>
+        <div class="stat"><div class="num">47</div><div class="lbl" data-en="Calls booked" data-hu="Foglalt hívás">Calls booked</div></div>
+        <div class="stat"><div class="num">31<span class="unit">%</span></div><div class="lbl" data-en="Close rate" data-hu="Zárási arány">Close rate</div></div>
+        <div class="stat"><div class="num">6</div><div class="lbl" data-en="Active clients" data-hu="Aktív ügyfél">Active clients</div></div>
+      </div>
+      <p class="cap" data-en="Sample data. Point it at your real numbers and it builds the live view" data-hu="Példaadat. Mutass rá a valódi számaidra, és megépíti az élő nézetet">Sample data. Point it at your real numbers and it builds the live view</p>
+    </div>
+  </section>
+
+  <!-- 12 WIDGET -> TOOL -->
+  <section class="slide s-ink" data-pattern="numbers">
+    <div class="slide-inner">
+      <div class="kicker" data-en="Visualize → Verify → Build" data-hu="Megmutat → jóváhagyod → megépíti">Visualize → Verify → Build</div>
+      <h2 class="h-title" data-en="The widget <span class='accent'>becomes</span> the tool" data-hu="A widgetből <span class='accent'>lesz</span> az eszköz">The widget <span class="accent">becomes</span> the tool</h2>
+      <div class="stat-grid" style="grid-template-columns:repeat(3,1fr)">
+        <div class="stat"><div class="num">1<span class="unit">.</span></div><div class="lbl" data-en="Claude builds the interactive version in chat" data-hu="A Claude megépíti az interaktív verziót a chatben">Claude builds the interactive version in chat</div></div>
+        <div class="stat"><div class="num">2<span class="unit">.</span></div><div class="lbl" data-en="You click it and approve the look" data-hu="Rákattintasz, és jóváhagyod a megjelenést">You click it and approve the look</div></div>
+        <div class="stat"><div class="num">3<span class="unit">.</span></div><div class="lbl" data-en="It turns that into the real, shipped tool" data-hu="Ebből lesz a valódi, kész eszköz">It turns that into the real, shipped tool</div></div>
+      </div>
+      <p class="lead" data-en="Everything on the last six slides started as a widget like this — designing by seeing, not guessing" data-hu="Minden, amit az előző hat dián láttál, egy ilyen widgetként indult — látva tervezünk, nem találgatva">Everything on the last six slides started as a widget like this — designing by seeing, not guessing</p>
+    </div>
+  </section>
+
+  <!-- 13 WORKFLOW 1 -->
+  <section class="slide s-paper" data-pattern="workflow">
+    <div class="slide-inner">
+      <div class="kicker" data-en="Workflow 1 · highest impact" data-hu="1. munkafolyamat · legnagyobb hatás">Workflow 1 · highest impact</div>
+      <h2 class="h-title" data-en="Hungarian copy via <span class='accent'>Copy Lab</span>" data-hu="Magyar szöveg a <span class='accent'>Copy Labbel</span>">Hungarian copy via <span class="accent">Copy Lab</span></h2>
+      <div class="feat-split">
+        <div class="fdesc">
+          <div class="fk" data-en="What it does" data-hu="Mit csinál">What it does</div>
+          <ul>
+            <li data-en="Writes in our native voice, not AI slop" data-hu="A mi natív hangunkon ír, nem AI-darálék">Writes in our native voice, not AI slop</li>
+            <li data-en="You give the brief, it drafts, you refine" data-hu="Megadod a briefet, megírja, te csiszolod">You give the brief, it drafts, you refine</li>
+            <li data-en="Emails, landing pages, lead magnets, social" data-hu="Emailek, landing oldalak, lead magnetek, posztok">Emails, landing pages, lead magnets, social</li>
+          </ul>
+        </div>
+        <div class="mock">
+          <div class="mock-bar"><i></i><i></i><i></i><span class="mt">Copy Lab</span></div>
+          <div class="mock-body">
+            <div class="you" data-en="5 cold-email variants for a logistics firm, pain = manual dispatch" data-hu="5 cold email variáns egy logisztikai cégnek, fájdalom = kézi diszpécselés">5 cold-email variants for a logistics firm, pain = manual dispatch</div>
+            <div class="out-card">
+              <div class="subj" data-en="Still dispatching by hand at 6am?" data-hu="Még mindig kézzel diszpécseltek hajnali 6-kor?">Still dispatching by hand at 6am?</div>
+              <div class="ln w1"></div><div class="ln w2"></div><div class="ln w3"></div>
+              <div class="chips"><span class="chip" data-en="variant A" data-hu="A variáns">variant A</span><span class="chip" data-en="variant B" data-hu="B variáns">variant B</span><span class="chip" data-en="+3 more" data-hu="+3 további">+3 more</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 14 WORKFLOW 2 -->
+  <section class="slide s-bone" data-pattern="workflow">
+    <div class="slide-inner">
+      <div class="kicker" data-en="Workflow 2" data-hu="2. munkafolyamat">Workflow 2</div>
+      <h2 class="h-title" data-en="Design &amp; UI <span class='accent'>review</span>" data-hu="Design- és UI-<span class='accent'>review</span>">Design &amp; UI <span class="accent">review</span></h2>
+      <div class="feat-split">
+        <div class="fdesc">
+          <div class="fk" data-en="What it does" data-hu="Mit csinál">What it does</div>
+          <ul>
+            <li data-en="Drop a screenshot, get a cleaner version" data-hu="Ejts be egy képernyőképet, kapsz egy letisztultabbat">Drop a screenshot, get a cleaner version</li>
+            <li data-en="Designer's-eye review of what's built" data-hu="Tervezői szemmel átnézi a meglévőt">Designer's-eye review of what's built</li>
+            <li data-en="Turn a Claude-design direction into real code" data-hu="Egy Claude-design-irányból valódi kód">Turn a Claude-design direction into real code</li>
+          </ul>
+        </div>
+        <div class="mock">
+          <div class="mock-bar"><i></i><i></i><i></i><span class="mt" data-en="before  →  after" data-hu="előtte  →  utána">before  →  after</span></div>
+          <div class="mock-body">
+            <div class="cmpmini">
+              <div class="box messy"><div class="tag" data-en="before" data-hu="előtte">before</div><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div></div>
+              <div class="box clean"><div class="tag" data-en="after" data-hu="utána">after</div><div class="ln"></div><div class="ln"></div><div class="ln"></div><div class="ln"></div></div>
+            </div>
+            <div class="you" style="margin-top:13px" data-en="Make this hero cleaner and on-brand" data-hu="Legyen ez a hero letisztultabb és márkahű">Make this hero cleaner and on-brand</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 15 WORKFLOW 3 -->
+  <section class="slide s-paper" data-pattern="workflow">
+    <div class="slide-inner">
+      <div class="kicker" data-en="Workflow 3" data-hu="3. munkafolyamat">Workflow 3</div>
+      <h2 class="h-title" data-en="Content <span class='accent'>production</span>" data-hu="Tartalom<span class='accent'>gyártás</span>">Content <span class="accent">production</span></h2>
+      <div class="feat-split">
+        <div class="fdesc">
+          <div class="fk" data-en="What it does" data-hu="Mit csinál">What it does</div>
+          <ul>
+            <li data-en="One asset becomes many formats" data-hu="Egy anyagból sok formátum">One asset becomes many formats</li>
+            <li data-en="Research a topic and draft from it" data-hu="Kikutatsz egy témát, és írsz belőle">Research a topic and draft from it</li>
+            <li data-en="Our voice stays consistent everywhere" data-hu="A hangunk mindenhol egységes marad">Our voice stays consistent everywhere</li>
+          </ul>
+        </div>
+        <div class="mock">
+          <div class="mock-bar"><i></i><i></i><i></i><span class="mt" data-en="repurpose" data-hu="újrahasznosítás">repurpose</span></div>
+          <div class="mock-body">
+            <div class="fan">
+              <div class="src"><div class="out-card" style="margin:0"><div class="subj" style="font-size:.82rem" data-en="Call transcript" data-hu="Hívás-leirat">Call transcript</div><div class="ln w1"></div><div class="ln w2"></div></div></div>
+              <div class="arr">&rarr;</div>
+              <div class="outs">
+                <span class="chip" data-en="LinkedIn post" data-hu="LinkedIn poszt">LinkedIn post</span>
+                <span class="chip" data-en="Short case study" data-hu="Rövid esettanulmány">Short case study</span>
+                <span class="chip" data-en="Email follow-up" data-hu="Email utánkövetés">Email follow-up</span>
+              </div>
+            </div>
+            <div class="you" style="margin-top:14px" data-en="Turn this transcript into a post and a case study" data-hu="Csináld ebből a leiratból egy posztot és egy esettanulmányt">Turn this transcript into a post and a case study</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 16 WORKFLOW 4 -->
+  <section class="slide s-bone" data-pattern="workflow">
+    <div class="slide-inner">
+      <div class="kicker" data-en="Workflow 4" data-hu="4. munkafolyamat">Workflow 4</div>
+      <h2 class="h-title" data-en="Planning &amp; <span class='accent'>ops</span>" data-hu="Tervezés és <span class='accent'>működés</span>">Planning &amp; <span class="accent">ops</span></h2>
+      <div class="feat-split">
+        <div class="fdesc">
+          <div class="fk" data-en="What it does" data-hu="Mit csinál">What it does</div>
+          <ul>
+            <li data-en="Plans your day around the #1 task" data-hu="A nap a legfontosabb feladat köré épül">Plans your day around the #1 task</li>
+            <li data-en="Tracks tasks without leaving the chat" data-hu="Feladatkövetés a chatből kilépés nélkül">Tracks tasks without leaving the chat</li>
+            <li data-en="Reads and updates our shared system" data-hu="Olvassa és frissíti a közös rendszerünket">Reads and updates our shared system</li>
+          </ul>
+        </div>
+        <div class="mock">
+          <div class="mock-bar"><i></i><i></i><i></i><span class="mt" data-en="today's plan" data-hu="mai terv">today's plan</span></div>
+          <div class="mock-body">
+            <div class="plan-row one"><span class="d"></span><span data-en="Calibrate Copy Lab voice" data-hu="Copy Lab hang kalibrálása">Calibrate Copy Lab voice</span><span class="star">#1</span></div>
+            <div class="plan-row"><span class="d"></span><span data-en="Draft 3 LinkedIn posts" data-hu="3 LinkedIn poszt vázlata">Draft 3 LinkedIn posts</span></div>
+            <div class="plan-row"><span class="d"></span><span data-en="Review landing hero" data-hu="Landing hero átnézése">Review landing hero</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 17 ROUTINES -->
+  <section class="slide s-ink" data-pattern="payoff">
+    <div class="slide-inner">
+      <div class="kicker" data-en="Automation" data-hu="Automatizálás">Automation</div>
+      <h2 class="h-title" data-en="Routines — <span class='accent'>set it and it runs</span>" data-hu="Rutinok — <span class='accent'>beállítod, és magától fut</span>">Routines — <span class="accent">set it and it runs</span></h2>
+      <div class="pay-grid">
+        <div class="pay"><div class="pn">06:00</div><div class="pt" data-en="Morning plan" data-hu="Reggeli terv">Morning plan</div><div class="pd" data-en="Today's plan drafted before you sit down" data-hu="A mai terv kész, mire leülsz">Today's plan drafted before you sit down</div></div>
+        <div class="pay"><div class="pn" data-en="Weekly" data-hu="Heti">Weekly</div><div class="pt" data-en="Content recap" data-hu="Tartalom-összegzés">Content recap</div><div class="pd" data-en="Performance summarised automatically" data-hu="A teljesítmény automatikusan összegezve">Performance summarised automatically</div></div>
+        <div class="pay"><div class="pn" data-en="Post-call" data-hu="Hívás után">Post-call</div><div class="pt" data-en="Notes" data-hu="Jegyzetek">Notes</div><div class="pd" data-en="Transcript turned into clean notes" data-hu="A leiratból letisztult jegyzet">Transcript turned into clean notes</div></div>
+        <div class="pay"><div class="pn">AIOS</div><div class="pt" data-en="Our product" data-hu="A termékünk">Our product</div><div class="pd" data-en="The exact engine we sell to clients" data-hu="Pontosan ez a motor, amit eladunk">The exact engine we sell to clients</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 18 WEEK-1 CHECKLIST (interactive) -->
+  <section class="slide s-paper" data-pattern="checklist">
+    <div class="slide-inner">
+      <div class="kicker" data-en="Momentum" data-hu="Lendület">Momentum</div>
+      <h2 class="h-title" data-en="Your first <span class='accent'>week</span>" data-hu="Az első <span class='accent'>heted</span>">Your first <span class="accent">week</span></h2>
+      <div style="margin-top:1.6rem">
+        <label class="chk"><input type="checkbox" class="task"><span data-en="Install the app and open the workspace" data-hu="Telepítsd az appot, és nyisd meg a munkateret">Install the app and open the workspace</span></label>
+        <label class="chk"><input type="checkbox" class="task"><span data-en="Run your first Copy Lab task — one Hungarian email" data-hu="Futtasd az első Copy Lab feladatot — egy magyar email">Run your first Copy Lab task — one Hungarian email</span></label>
+        <label class="chk"><input type="checkbox" class="task"><span data-en="Drag a screenshot in and ask for a design fix" data-hu="Húzz be egy képernyőképet, és kérj egy design-javítást">Drag a screenshot in and ask for a design fix</span></label>
+        <label class="chk"><input type="checkbox" class="task"><span data-en="Set up one routine — like a daily plan" data-hu="Állíts be egy rutint — például a napi tervet">Set up one routine — like a daily plan</span></label>
+        <label class="chk"><input type="checkbox" class="task"><span data-en="<b>The habit:</b> say &quot;prototype it as a widget first&quot;" data-hu="<b>A szokás:</b> mondd: „előbb csináld meg widgetként”"><b>The habit:</b> say "prototype it as a widget first"</span></label>
+      </div>
+      <p class="cap" data-en="Tick them off — this checklist remembers your progress" data-hu="Pipáld ki — ez a lista megjegyzi, hol tartasz">Tick them off — this checklist remembers your progress</p>
+    </div>
+  </section>
+
+  <!-- 19 GUARDRAILS -->
+  <section class="slide s-bone" data-pattern="contrast">
+    <div class="slide-inner">
+      <div class="kicker" data-en="Safety" data-hu="Biztonság">Safety</div>
+      <h2 class="h-title" data-en="It always <span class='accent'>asks first</span>" data-hu="Mindig <span class='accent'>előbb kérdez</span>">It always <span class="accent">asks first</span></h2>
+      <div class="nt-list">
+        <div class="nt"><span class="y">//</span><span class="nt-txt" data-en="<b>It drafts, you approve</b> — you see every message before it's sent" data-hu="<b>Megírja, te jóváhagyod</b> — minden üzenetet látsz, mielőtt elmegy"><b>It drafts, you approve</b> — you see every message before it's sent</span></div>
+        <div class="nt"><span class="y">//</span><span class="nt-txt" data-en="<b>Safe stuff only</b> — it acts on the undoable, stops on anything permanent" data-hu="<b>Csak a biztosat</b> — a visszavonhatót megcsinálja, a véglegesnél megáll"><b>Safe stuff only</b> — it acts on the undoable, stops on anything permanent</span></div>
+        <div class="nt"><span class="y">//</span><span class="nt-txt" data-en="<b>Never spends or deletes</b> without showing you and getting a yes" data-hu="<b>Soha nem költ és nem töröl</b> anélkül, hogy megmutatná és igent kapna"><b>Never spends or deletes</b> without showing you and getting a yes</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 20 PROMPT LIBRARY (copy-many) -->
+  <section class="slide s-bone" data-pattern="prompts">
+    <div class="slide-inner">
+      <div class="kicker" data-en="Try it live" data-hu="Próbáld ki élesben">Try it live</div>
+      <h2 class="h-title" style="font-size:clamp(1.8rem,4vw,2.7rem)" data-en="Steal a prompt, <span class='accent'>paste it in</span>" data-hu="Lopj egy promptot, <span class='accent'>illeszd be</span>">Steal a prompt, <span class="accent">paste it in</span></h2>
+      <div class="prompt-list">
+        <div class="prompt-item">
+          <div class="pi-head"><span class="lbl" data-en="Hungarian email" data-hu="Magyar email">Hungarian email</span><button class="copy-btn copy-one" data-en="Copy" data-hu="Másol">Copy</button></div>
+          <div class="pi-body" data-en="Write 5 Hungarian cold-email variants for a logistics company. Pain: manual dispatch eats their mornings. Offer: our outbound system. Keep it native — no AI slop." data-hu="Írj 5 magyar cold email variánst egy logisztikai cégnek. Fájdalom: a kézi diszpécselés elviszi a reggeleiket. Ajánlat: a kimenő rendszerünk. Legyen natív — semmi AI-darálék.">Write 5 Hungarian cold-email variants for a logistics company. Pain: manual dispatch eats their mornings. Offer: our outbound system. Keep it native — no AI slop.</div>
+        </div>
+        <div class="prompt-item">
+          <div class="pi-head"><span class="lbl" data-en="Design fix" data-hu="Design-javítás">Design fix</span><button class="copy-btn copy-one" data-en="Copy" data-hu="Másol">Copy</button></div>
+          <div class="pi-body" data-en="Here's a screenshot of our landing hero. Make it cleaner and on-brand, then show me the new version. (drag the image in)" data-hu="Itt egy képernyőkép a landing herónkról. Tedd letisztultabbá és márkahűvé, majd mutasd meg az új verziót. (húzd be a képet)">Here's a screenshot of our landing hero. Make it cleaner and on-brand, then show me the new version. (drag the image in)</div>
+        </div>
+        <div class="prompt-item">
+          <div class="pi-head"><span class="lbl" data-en="Repurpose content" data-hu="Tartalom újrahasznosítás">Repurpose content</span><button class="copy-btn copy-one" data-en="Copy" data-hu="Másol">Copy</button></div>
+          <div class="pi-body" data-en="Turn this client call transcript into a LinkedIn post and a short case study, in our voice. (paste the transcript)" data-hu="Csináld ebből az ügyfélhívás-leiratból egy LinkedIn posztot és egy rövid esettanulmányt, a mi hangunkon. (illeszd be a leiratot)">Turn this client call transcript into a LinkedIn post and a short case study, in our voice. (paste the transcript)</div>
+        </div>
+        <div class="prompt-item">
+          <div class="pi-head"><span class="lbl" data-en="Plan my day" data-hu="Tervezd meg a napom">Plan my day</span><button class="copy-btn copy-one" data-en="Copy" data-hu="Másol">Copy</button></div>
+          <div class="pi-body" data-en="Look at my tasks for today and plan my day around the single most important one. What's the #1 move?" data-hu="Nézd át a mai feladataimat, és tervezd a napom a legfontosabb köré. Mi az első számú lépés?">Look at my tasks for today and plan my day around the single most important one. What's the #1 move?</div>
+        </div>
+        <div class="prompt-item">
+          <div class="pi-head"><span class="lbl" data-en="Build a chart" data-hu="Készíts grafikont">Build a chart</span><button class="copy-btn copy-one" data-en="Copy" data-hu="Másol">Copy</button></div>
+          <div class="pi-body" data-en="Build me a bar chart of content pieces shipped per week for the last 5 weeks — on-brand, inline." data-hu="Készíts egy oszlopdiagramot az elmúlt 5 hét heti kiszállított tartalmáról — márkahűen, beágyazva.">Build me a bar chart of content pieces shipped per week for the last 5 weeks — on-brand, inline.</div>
+        </div>
+      </div>
+      <p class="cap" data-en="Copy any of these and paste straight into Claude Code — that's your first win" data-hu="Másold ki bármelyiket, és illeszd be a Claude Code-ba — ez az első sikered">Copy any of these and paste straight into Claude Code — that's your first win</p>
+    </div>
+  </section>
+
+  <!-- 21 WHAT'S NEXT -->
+  <section class="slide s-signal" data-pattern="close">
+    <div class="edge-mark"><svg viewBox="0 0 80 56" aria-hidden="true"><polygon points="6,50 24,6 36,6 18,50" fill="var(--ink)"/><polygon points="36,50 54,6 66,6 48,50" fill="var(--ink)"/></svg></div>
+    <div class="slide-inner">
+      <div class="kicker" data-en="What's next" data-hu="Mi jön ezután">What's next</div>
+      <h2 class="h-title" data-en="Get comfortable here.<br>Then we add <span class='accent'>Cowork</span>" data-hu="Érezd otthon magad itt.<br>Aztán jön a <span class='accent'>Cowork</span>">Get comfortable here.<br>Then we add <span class="accent">Cowork</span></h2>
+      <p class="lead" data-en="Chat to think · design to explore · Code to build &amp; do · routines to automate · Cowork to collaborate as a team" data-hu="Chat a gondolkodáshoz · design a kereséshez · Code az építéshez · rutinok az automatizáláshoz · Cowork a közös munkához">Chat to think · design to explore · Code to build &amp; do · routines to automate · Cowork to collaborate as a team</p>
+    </div>
+  </section>
+
+</main>
+
+<script>
+(function(){
+  const deck=document.getElementById('deck');
+  const slides=Array.from(document.querySelectorAll('.slide'));
+  const total=slides.length;
+  document.getElementById('tot').textContent=String(total).padStart(2,'0');
+  let idx=0;
+  function pad(n){return String(n+1).padStart(2,'0')}
+  function update(){document.getElementById('cur').textContent=pad(idx);document.getElementById('progress').style.width=((idx+1)/total*100)+'%';}
+  function go(n){idx=Math.max(0,Math.min(total-1,n));slides[idx].scrollIntoView({behavior:'smooth'});update();}
+  document.addEventListener('keydown',function(e){
+    if(['ArrowDown','ArrowRight','PageDown',' '].includes(e.key)){e.preventDefault();go(idx+1);}
+    else if(['ArrowUp','ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();go(idx-1);}
+    else if(e.key==='Home'){e.preventDefault();go(0);} else if(e.key==='End'){e.preventDefault();go(total-1);}
+  });
+  let t;
+  deck.addEventListener('scroll',function(){clearTimeout(t);t=setTimeout(function(){const mid=deck.scrollTop+window.innerHeight/2;let best=0;slides.forEach(function(s,i){if(s.offsetTop<=mid)best=i;});if(best!==idx){idx=best;update();}},60);});
+  update();
+})();
+
+function applyLang(l){
+  document.documentElement.lang=l;
+  document.querySelectorAll('[data-en]').forEach(function(el){
+    var v=el.getAttribute('data-'+l); if(v!==null) el.innerHTML=v;
+  });
+  document.querySelectorAll('.langtog button').forEach(function(b){b.classList.toggle('on',b.dataset.lang===l);});
+  localStorage.setItem('kitti_deck_lang',l);
+}
+document.querySelectorAll('.langtog button').forEach(function(b){b.addEventListener('click',function(){applyLang(b.dataset.lang);});});
+
+/* prompt library — per-row copy to clipboard */
+document.querySelectorAll('.copy-one').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    var body=btn.closest('.prompt-item').querySelector('.pi-body');
+    var l=document.documentElement.lang||'en';
+    navigator.clipboard.writeText(body.textContent).then(function(){
+      btn.textContent=l==='hu'?'Másolva':'Copied'; btn.classList.add('done');
+      setTimeout(function(){btn.textContent=l==='hu'?'Másol':'Copy';btn.classList.remove('done');},1500);
+    });
+  });
+});
+
+/* interactive calculator */
+(function(){
+  var proj=document.getElementById('d_proj'),fee=document.getElementById('d_fee');
+  if(!proj||!fee) return;
+  function eur(n){return '€'+Math.round(n).toLocaleString('en-US');}
+  function calc(){
+    var p=+proj.value,f=+fee.value,r=p*f;
+    document.getElementById('o_proj').textContent=p;
+    document.getElementById('o_fee').textContent=eur(f);
+    document.getElementById('o_rev').textContent=eur(r);
+    document.getElementById('o_year').textContent=eur(r*12);
+  }
+  proj.addEventListener('input',calc);fee.addEventListener('input',calc);calc();
+})();
+
+/* interactive checklist */
+document.querySelectorAll('.task').forEach(function(c,i){
+  var key='kitti_deck_task_'+i;
+  if(localStorage.getItem(key)==='1'){c.checked=true;c.closest('.chk').classList.add('done');}
+  c.addEventListener('change',function(){
+    c.closest('.chk').classList.toggle('done',c.checked);
+    localStorage.setItem(key,c.checked?'1':'0');
+  });
+});
+
+window.addEventListener('load',function(){ applyLang(localStorage.getItem('kitti_deck_lang')||'en'); });
+</script>
+</body>
+</html>
